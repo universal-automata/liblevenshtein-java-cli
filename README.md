@@ -18,6 +18,8 @@ Total time: 4.925 secs
 This build could be faster, please consider using the Gradle Daemon: https://docs.gradle.org/2.12/userguide/gradle_daemon.html
 ```
 
+##### Getting help on its usage
+
 ```
 $ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --help
 12:17:52.845 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--help]
