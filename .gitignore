@@ -1,0 +1,26 @@
+# Blacklist everything by default, so nothing is accidentally committed:
+*
+
+# Whitelist directories so we may recurse into them
+!*/
+
+# Whitelist the following files and directories:
+!/.gitignore
+!/CHANGELOG.md
+!/LICENSE
+!/README.md
+!/build.gradle
+!/config/**/*.xml
+!/config/**/*.xsl
+!/gradle/wrapper/gradle-wrapper.jar
+!/gradle/wrapper/gradle-wrapper.properties
+!/gradlew
+!/gradlew.bat
+!/javadoc.options
+!/settings.gradle
+!/src/integ/java/**/*.java
+!/src/main/java/**/*.java
+!/src/main/java/**/lombok.config
+!/src/main/resources/**/*.txt
+!/src/main/resources/logback.groovy
+!/src/test/java/**/*.java

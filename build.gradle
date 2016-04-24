@@ -1,0 +1,209 @@
+plugins {
+  // Supported Plugins
+  id 'application'
+  id 'checkstyle'
+  id 'findbugs'
+  id 'jacoco'
+  id 'java'
+  id 'maven-publish'
+
+  // Third Party Plugins
+  id 'com.github.kt3k.coveralls' version '2.6.3'
+  id 'org.standardout.versioneye' version '1.2.0'
+}
+
+repositories {
+  mavenCentral()
+  jcenter()
+}
+
+sourceSets {
+  integrationTest {
+    java {
+      compileClasspath += main.output + test.output
+      runtimeClasspath += main.output + test.output
+      srcDir file("$projectDir/src/integ/java")
+    }
+    resources.srcDir file("$projectDir/src/integ/resources")
+  }
+}
+
+configurations {
+  integrationTestCompile.extendsFrom testCompile
+  integrationTestRuntime.extendsFrom testRuntime
+}
+
+group = 'com.github.dylon'
+archivesBaseName = name
+version = '2.2.1' // http://semver.org/
+
+description = 'Command-Line Interface to liblevenshtein (Java)'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+mainClassName = 'com.github.liblevenshtein.CommandLineInterface'
+
+ext {
+  srcJava = "$projectDir/src/main/java"
+  srcDelomboked = "$buildDir/src-delomboked/main/java"
+}
+
+dependencies {
+	compile "com.github.dylon:liblevenshtein:${version}"
+  compile 'com.google.code.findbugs:annotations:3.0.1'
+  compile 'com.google.guava:guava:19.0'
+  compile 'com.google.protobuf:protobuf-java-util:3.0.0-beta-2'
+  compile 'com.google.protobuf:protobuf-java:3.0.0-beta-2'
+  compile 'commons-cli:commons-cli:1.3.1'
+  compile 'org.apache.commons:commons-lang3:3.4'
+  compile 'org.projectlombok:lombok:1.16.8'
+  compile 'org.slf4j:slf4j-api:1.7.21'
+
+  runtime 'ch.qos.logback:logback-classic:1.1.7'
+  runtime 'org.codehaus.groovy:groovy-all:2.4.6'
+  runtime 'org.slf4j:jcl-over-slf4j:1.7.21'
+  runtime 'org.slf4j:jul-to-slf4j:1.7.21'
+  runtime 'org.slf4j:log4j-over-slf4j:1.7.21'
+  runtime 'org.slf4j:osgi-over-slf4j:1.7.21'
+
+  testCompile 'org.assertj:assertj-core:3.4.1'
+  testCompile 'org.mockito:mockito-all:1.10.19'
+  testCompile 'org.projectlombok:lombok:1.16.8'
+  testCompile 'org.testng:testng:6.9.11'
+
+  testRuntime 'ch.qos.logback:logback-classic:1.1.7'
+  testRuntime 'org.codehaus.groovy:groovy-all:2.4.6'
+  testRuntime 'org.slf4j:jcl-over-slf4j:1.7.21'
+  testRuntime 'org.slf4j:jul-to-slf4j:1.7.21'
+  testRuntime 'org.slf4j:log4j-over-slf4j:1.7.21'
+  testRuntime 'org.slf4j:osgi-over-slf4j:1.7.21'
+
+  // JaCoCo (Plugin)
+  jacocoAgent 'org.jacoco:org.jacoco.agent:0.7.6.201602180812'
+  jacocoAnt 'org.jacoco:org.jacoco.ant:0.7.6.201602180812'
+
+  // Checkstyle (Plugin)
+  checkstyle 'com.puppycrawl.tools:checkstyle:6.17'
+}
+
+jacocoTestReport {
+  reports {
+    xml.enabled = true // coveralls plugin depends on xml format report
+    html.enabled = true
+  }
+}
+
+findbugs {
+  excludeFilter = file("$rootProject.projectDir/config/findbugs/exclude-filter.xml")
+}
+
+tasks.withType(JavaCompile) {
+  options.compilerArgs << "-Xlint:all"
+}
+
+test {
+  useTestNG() {
+    // Run as many tests in-parallel as there are CPU cores
+    parallel 'methods'
+    threadCount Runtime.getRuntime().availableProcessors()
+  }
+
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat "full"
+    showStandardStreams true
+    showExceptions true
+    showStackTraces true
+  }
+}
+
+task integrationTest(type: Test) {
+  useTestNG() {
+    // Run as many tests in-parallel as there are CPU cores
+    parallel 'methods'
+    threadCount Runtime.getRuntime().availableProcessors()
+  }
+
+  testClassesDir = sourceSets.integrationTest.output.classesDir
+  classpath = sourceSets.integrationTest.runtimeClasspath
+  outputs.upToDateWhen { false } // always run integration tests
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat "full"
+    showStandardStreams true
+    showExceptions true
+    showStackTraces true
+  }
+}
+
+task delombok {
+  dependsOn configurations.compile.getTaskDependencyFromProjectDependency(true, "compileJava")
+
+  // Make sure the delombok directory exists ...
+  file(srcDelomboked).mkdirs()
+
+  inputs.files file(srcJava)
+  outputs.dir file(srcDelomboked)
+
+  doLast {
+    ant.taskdef(
+      name: 'delombok',
+      classname: 'lombok.delombok.ant.Tasks$Delombok',
+      classpath: configurations.compile.asPath)
+    ant.delombok(
+      from: srcJava,
+      to: srcDelomboked,
+      classpath: configurations.compile.asPath)
+  }
+}
+
+tasks.withType(FindBugs) {
+  reports {
+    xml.enabled = false
+    html.enabled = true
+  }
+}
+
+tasks.withType(Test) {
+  reports.html.destination = file("${reporting.baseDir}/${name}")
+}
+
+//tasks.javadoc {
+  //dependsOn delombok
+  //source = new FileNameFinder().getFileNames("${buildDir}", '**/*.java')
+  //destinationDir = file("${projectDir}/gh-pages/docs/javadoc/${version}")
+  //if (destinationDir.exists() && !destinationDir.deleteDir()) {
+    //throw new IOException("Failed to delete javadoc dir [${destinationDir}]")
+  //}
+  //destinationDir.mkdirs()
+  //options.optionFiles << file('javadoc.options')
+//}
+
+task checkstyleMainHtml << {
+  ant.xslt(
+    in: checkstyleMain.reports.xml.destination,
+    style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
+    out: new File(checkstyleMain.reports.xml.destination.parent, 'main.html'))
+}
+
+//task checkstyleTestHtml << {
+  //ant.xslt(
+    //in: checkstyleTest.reports.xml.destination,
+    //style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
+    //out: new File(checkstyleTest.reports.xml.destination.parent, 'test.html'))
+//}
+
+//task checkstyleIntegrationTestHtml << {
+  //ant.xslt(
+    //in: checkstyleIntegrationTest.reports.xml.destination,
+    //style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
+    //out: new File(checkstyleIntegrationTest.reports.xml.destination.parent, 'test.html'))
+//}
+
+checkstyleMain.finalizedBy checkstyleMainHtml
+//checkstyleTest.finalizedBy checkstyleTestHtml
+//checkstyleIntegrationTest.finalizedBy checkstyleIntegrationTestHtml
+
+check.dependsOn integrationTest
+integrationTest.mustRunAfter test
