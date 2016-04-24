@@ -121,3 +121,48 @@ $ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --algorith
 | "mispelling" ~ "misspelling"
 | "mispelling" ~ "misspellings"
 ```
+
+```
+$ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --algorithm TRANSPOSITION --max-distance 2 --include-distance --query mispelled mispelling --colorize
+12:19:33.033 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--algorithm, TRANSPOSITION, --max-distance, 2, --include-distance, --query, mispelled, mispelling, --colorize]
+12:19:33.041 [main] INFO  c.g.l.CommandLineInterface - Attempting to deserialize dictionary as a [PROTOBUF] stream
+12:19:33.043 [main] WARN  c.g.l.CommandLineInterface - No dictionary specified, defaulting to [jar:file:///home/dylon/Workspace/liblevenshtein-java/java-cli/build/install/liblevenshtein-java-cli/lib/liblevenshtein-java-cli-2.2.1.jar!/wordsEn.txt]
+12:19:33.054 [main] WARN  c.g.l.CommandLineInterface - Nope, dictionary is not a [PROTOBUF] stream
+12:19:33.054 [main] INFO  c.g.l.CommandLineInterface - Attempting to deserialize dictionary as a [BYTECODE] stream
+12:19:33.055 [main] WARN  c.g.l.CommandLineInterface - No dictionary specified, defaulting to [jar:file:///home/dylon/Workspace/liblevenshtein-java/java-cli/build/install/liblevenshtein-java-cli/lib/liblevenshtein-java-cli-2.2.1.jar!/wordsEn.txt]
+12:19:33.056 [main] WARN  c.g.l.CommandLineInterface - Nope, dictionary is not a [BYTECODE] stream
+12:19:33.056 [main] INFO  c.g.l.CommandLineInterface - Attempting to deserialize dictionary as a [PLAIN_TEXT] stream
+12:19:33.056 [main] WARN  c.g.l.CommandLineInterface - No dictionary specified, defaulting to [jar:file:///home/dylon/Workspace/liblevenshtein-java/java-cli/build/install/liblevenshtein-java-cli/lib/liblevenshtein-java-cli-2.2.1.jar!/wordsEn.txt]
+12:19:33.157 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [10000] of [109582] terms
+12:19:33.180 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [20000] of [109582] terms
+12:19:33.203 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [30000] of [109582] terms
+12:19:33.221 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [40000] of [109582] terms
+12:19:33.239 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [50000] of [109582] terms
+12:19:33.257 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [60000] of [109582] terms
+12:19:33.278 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [70000] of [109582] terms
+12:19:33.295 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [80000] of [109582] terms
+12:19:33.310 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [90000] of [109582] terms
+12:19:33.328 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [100000] of [109582] terms
+12:19:33.355 [main] INFO  c.g.d.l.l.factory.TransducerBuilder - Building transducer out of [109582] terms with algorithm [TRANSPOSITION], defaultMaxDistance [2], includeDistance [true], and maxCandidates [2147483647]
++-------------------------------------------------------------------------------
+| Spelling Candidates for Query Term: "mispelled"
++-------------------------------------------------------------------------------
+| d("mispelled", "spelled") = [2]
+| d("mispelled", "impelled") = [2]
+| d("mispelled", "dispelled") = [1]
+| d("mispelled", "miscalled") = [2]
+| d("mispelled", "respelled") = [2]
+| d("mispelled", "misspelled") = [1]
++-------------------------------------------------------------------------------
+| Spelling Candidates for Query Term: "mispelling"
++-------------------------------------------------------------------------------
+| d("mispelling", "spelling") = [2]
+| d("mispelling", "impelling") = [2]
+| d("mispelling", "dispelling") = [1]
+| d("mispelling", "misbilling") = [2]
+| d("mispelling", "miscalling") = [2]
+| d("mispelling", "misdealing") = [2]
+| d("mispelling", "respelling") = [2]
+| d("mispelling", "misspelling") = [1]
+| d("mispelling", "misspellings") = [2]
+```
