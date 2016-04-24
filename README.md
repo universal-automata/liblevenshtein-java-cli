@@ -1,3 +1,17 @@
+##### Cloning the repository
+
+```
+$ git clone https://github.com/universal-automata/liblevenshtein-java-cli.git
+Cloning into 'liblevenshtein-java-cli'...
+remote: Counting objects: 61, done.
+remote: Compressing objects: 100% (45/45), done.
+remote: Total 61 (delta 7), reused 56 (delta 2), pack-reused 0
+Unpacking objects: 100% (61/61), done.
+Checking connectivity... done.
+
+$ cd liblevenshtein-java-cli
+```
+
 ##### Building the command-line interface
 
 ```
