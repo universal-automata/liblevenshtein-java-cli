@@ -1,3 +1,5 @@
+##### Building the command-line interface
+
 ```
 $ gradle installDist
 :compileJavawarning: No processor claimed any of these annotations: lombok.extern.slf4j.Slf4j,lombok.experimental.ExtensionMethod,lombok.Getter,lombok.RequiredArgsConstructor,edu.umd.cs.findbugs.annotations.SuppressFBWarnings
@@ -77,73 +79,31 @@ Example: liblevenshtein-java-cli \
   --colorize
 ```
 
-```
-$ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --algorithm TRANSPOSITION --max-distance 2 --query mispelled mispelling --colorize
-12:17:24.784 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--algorithm, TRANSPOSITION, --max-distance, 2, --query, mispelled, mispelling, --colorize]
-12:17:24.791 [main] INFO  c.g.l.CommandLineInterface - Attempting to deserialize dictionary as a [PROTOBUF] stream
-12:17:24.793 [main] WARN  c.g.l.CommandLineInterface - No dictionary specified, defaulting to [jar:file:///home/dylon/Workspace/liblevenshtein-java/java-cli/build/install/liblevenshtein-java-cli/lib/liblevenshtein-java-cli-2.2.1.jar!/wordsEn.txt]
-12:17:24.802 [main] WARN  c.g.l.CommandLineInterface - Nope, dictionary is not a [PROTOBUF] stream
-12:17:24.802 [main] INFO  c.g.l.CommandLineInterface - Attempting to deserialize dictionary as a [BYTECODE] stream
-12:17:24.803 [main] WARN  c.g.l.CommandLineInterface - No dictionary specified, defaulting to [jar:file:///home/dylon/Workspace/liblevenshtein-java/java-cli/build/install/liblevenshtein-java-cli/lib/liblevenshtein-java-cli-2.2.1.jar!/wordsEn.txt]
-12:17:24.804 [main] WARN  c.g.l.CommandLineInterface - Nope, dictionary is not a [BYTECODE] stream
-12:17:24.804 [main] INFO  c.g.l.CommandLineInterface - Attempting to deserialize dictionary as a [PLAIN_TEXT] stream
-12:17:24.804 [main] WARN  c.g.l.CommandLineInterface - No dictionary specified, defaulting to [jar:file:///home/dylon/Workspace/liblevenshtein-java/java-cli/build/install/liblevenshtein-java-cli/lib/liblevenshtein-java-cli-2.2.1.jar!/wordsEn.txt]
-12:17:24.903 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [10000] of [109582] terms
-12:17:24.925 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [20000] of [109582] terms
-12:17:24.947 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [30000] of [109582] terms
-12:17:24.965 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [40000] of [109582] terms
-12:17:24.982 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [50000] of [109582] terms
-12:17:24.999 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [60000] of [109582] terms
-12:17:25.020 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [70000] of [109582] terms
-12:17:25.037 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [80000] of [109582] terms
-12:17:25.053 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [90000] of [109582] terms
-12:17:25.072 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [100000] of [109582] terms
-12:17:25.097 [main] INFO  c.g.d.l.l.factory.TransducerBuilder - Building transducer out of [109582] terms with algorithm [TRANSPOSITION], defaultMaxDistance [2], includeDistance [false], and maxCandidates [2147483647]
-+-------------------------------------------------------------------------------
-| Spelling Candidates for Query Term: "mispelled"
-+-------------------------------------------------------------------------------
-| "mispelled" ~ "spelled"
-| "mispelled" ~ "impelled"
-| "mispelled" ~ "dispelled"
-| "mispelled" ~ "miscalled"
-| "mispelled" ~ "respelled"
-| "mispelled" ~ "misspelled"
-+-------------------------------------------------------------------------------
-| Spelling Candidates for Query Term: "mispelling"
-+-------------------------------------------------------------------------------
-| "mispelling" ~ "spelling"
-| "mispelling" ~ "impelling"
-| "mispelling" ~ "dispelling"
-| "mispelling" ~ "misbilling"
-| "mispelling" ~ "miscalling"
-| "mispelling" ~ "misdealing"
-| "mispelling" ~ "respelling"
-| "mispelling" ~ "misspelling"
-| "mispelling" ~ "misspellings"
-```
+##### Converting from Plain Text to Protocol Buffers
 
 ```
-$ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --algorithm TRANSPOSITION --max-distance 2 --include-distance --query mispelled mispelling --colorize
-12:19:33.033 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--algorithm, TRANSPOSITION, --max-distance, 2, --include-distance, --query, mispelled, mispelling, --colorize]
-12:19:33.041 [main] INFO  c.g.l.CommandLineInterface - Attempting to deserialize dictionary as a [PROTOBUF] stream
-12:19:33.043 [main] WARN  c.g.l.CommandLineInterface - No dictionary specified, defaulting to [jar:file:///home/dylon/Workspace/liblevenshtein-java/java-cli/build/install/liblevenshtein-java-cli/lib/liblevenshtein-java-cli-2.2.1.jar!/wordsEn.txt]
-12:19:33.054 [main] WARN  c.g.l.CommandLineInterface - Nope, dictionary is not a [PROTOBUF] stream
-12:19:33.054 [main] INFO  c.g.l.CommandLineInterface - Attempting to deserialize dictionary as a [BYTECODE] stream
-12:19:33.055 [main] WARN  c.g.l.CommandLineInterface - No dictionary specified, defaulting to [jar:file:///home/dylon/Workspace/liblevenshtein-java/java-cli/build/install/liblevenshtein-java-cli/lib/liblevenshtein-java-cli-2.2.1.jar!/wordsEn.txt]
-12:19:33.056 [main] WARN  c.g.l.CommandLineInterface - Nope, dictionary is not a [BYTECODE] stream
-12:19:33.056 [main] INFO  c.g.l.CommandLineInterface - Attempting to deserialize dictionary as a [PLAIN_TEXT] stream
-12:19:33.056 [main] WARN  c.g.l.CommandLineInterface - No dictionary specified, defaulting to [jar:file:///home/dylon/Workspace/liblevenshtein-java/java-cli/build/install/liblevenshtein-java-cli/lib/liblevenshtein-java-cli-2.2.1.jar!/wordsEn.txt]
-12:19:33.157 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [10000] of [109582] terms
-12:19:33.180 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [20000] of [109582] terms
-12:19:33.203 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [30000] of [109582] terms
-12:19:33.221 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [40000] of [109582] terms
-12:19:33.239 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [50000] of [109582] terms
-12:19:33.257 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [60000] of [109582] terms
-12:19:33.278 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [70000] of [109582] terms
-12:19:33.295 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [80000] of [109582] terms
-12:19:33.310 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [90000] of [109582] terms
-12:19:33.328 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [100000] of [109582] terms
-12:19:33.355 [main] INFO  c.g.d.l.l.factory.TransducerBuilder - Building transducer out of [109582] terms with algorithm [TRANSPOSITION], defaultMaxDistance [2], includeDistance [true], and maxCandidates [2147483647]
+$ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --dictionary /tmp/dictionary.txt --source-format PLAIN_TEXT --serialize /tmp/dictionary.proto.bytes --target-format PROTOBUF
+12:21:30.875 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--dictionary, /tmp/dictionary.txt, --source-format, PLAIN_TEXT, --serialize, /tmp/dictionary.proto.bytes, --target-format, PROTOBUF]
+12:21:30.975 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [10000] of [109582] terms
+12:21:30.998 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [20000] of [109582] terms
+12:21:31.020 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [30000] of [109582] terms
+12:21:31.038 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [40000] of [109582] terms
+12:21:31.055 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [50000] of [109582] terms
+12:21:31.073 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [60000] of [109582] terms
+12:21:31.093 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [70000] of [109582] terms
+12:21:31.111 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [80000] of [109582] terms
+12:21:31.127 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [90000] of [109582] terms
+12:21:31.145 [main] INFO  c.g.d.l.collection.dawg.AbstractDawg - Added [100000] of [109582] terms
+12:21:31.171 [main] INFO  c.g.d.l.l.factory.TransducerBuilder - Building transducer out of [109582] terms with algorithm [TRANSPOSITION], defaultMaxDistance [2], includeDistance [false], and maxCandidates [2147483647]
+12:21:31.183 [main] INFO  c.g.l.CommandLineInterface - Serializing [109582] terms in the dictionary to [/tmp/dictionary.proto.bytes] as format [PROTOBUF]
+```
+
+##### Querying the dictionary while including candidate distances
+
+```
+$ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --dictionary /tmp/dictionary.proto.bytes --source-format PROTOBUF --algorithm TRANSPOSITION --max-distance 2 --include-distance --query mispelled mispelling --colorize
+12:24:09.029 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--dictionary, /tmp/dictionary.proto.bytes, --source-format, PROTOBUF, --algorithm, TRANSPOSITION, --max-distance, 2, --include-distance, --query, mispelled, mispelling, --colorize]
+12:24:09.224 [main] INFO  c.g.d.l.l.factory.TransducerBuilder - Building transducer out of [109582] terms with algorithm [TRANSPOSITION], defaultMaxDistance [2], includeDistance [true], and maxCandidates [2147483647]
 +-------------------------------------------------------------------------------
 | Spelling Candidates for Query Term: "mispelled"
 +-------------------------------------------------------------------------------
@@ -165,4 +125,33 @@ $ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --algorith
 | d("mispelling", "respelling") = [2]
 | d("mispelling", "misspelling") = [1]
 | d("mispelling", "misspellings") = [2]
+```
+
+##### Querying the dictionary without including candidate distances
+
+```
+$ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --dictionary /tmp/dictionary.proto.bytes --source-format PROTOBUF --algorithm TRANSPOSITION --max-distance 2 --query mispelled mispelling --colorize
+12:24:30.437 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--dictionary, /tmp/dictionary.proto.bytes, --source-format, PROTOBUF, --algorithm, TRANSPOSITION, --max-distance, 2, --query, mispelled, mispelling, --colorize]
+12:24:30.636 [main] INFO  c.g.d.l.l.factory.TransducerBuilder - Building transducer out of [109582] terms with algorithm [TRANSPOSITION], defaultMaxDistance [2], includeDistance [false], and maxCandidates [2147483647]
++-------------------------------------------------------------------------------
+| Spelling Candidates for Query Term: "mispelled"
++-------------------------------------------------------------------------------
+| "mispelled" ~ "spelled"
+| "mispelled" ~ "impelled"
+| "mispelled" ~ "dispelled"
+| "mispelled" ~ "miscalled"
+| "mispelled" ~ "respelled"
+| "mispelled" ~ "misspelled"
++-------------------------------------------------------------------------------
+| Spelling Candidates for Query Term: "mispelling"
++-------------------------------------------------------------------------------
+| "mispelling" ~ "spelling"
+| "mispelling" ~ "impelling"
+| "mispelling" ~ "dispelling"
+| "mispelling" ~ "misbilling"
+| "mispelling" ~ "miscalling"
+| "mispelling" ~ "misdealing"
+| "mispelling" ~ "respelling"
+| "mispelling" ~ "misspelling"
+| "mispelling" ~ "misspellings"
 ```
