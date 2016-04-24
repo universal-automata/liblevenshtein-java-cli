@@ -398,6 +398,7 @@ public class CommandLineInterface implements Runnable {
         .argName(PIPES.join(Algorithm.values()))
         .desc(String.format("Levenshtein algorithm to use (Default: %s)",
           DEFAULT_ALGORITHM))
+        .hasArg()
         .build());
     options.addOption(
       Option.builder("m")
