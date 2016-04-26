@@ -96,9 +96,6 @@ public class ProcessAssertions
   }
 
   public ProcessAssertions excluding(@NonNull final Predicate<String> exclusion) {
-    isNotNull();
-    Assertions.assertThat(parent).isNotNull();
-    Assertions.assertThat(output).isNotNull();
     exclusions.add(exclusion);
     return this;
   }
@@ -112,9 +109,6 @@ public class ProcessAssertions
   }
 
   public ProcessAssertions including(@NonNull final Predicate<String> inclusion) {
-    isNotNull();
-    Assertions.assertThat(parent).isNotNull();
-    Assertions.assertThat(output).isNotNull();
     inclusions.add(inclusion);
     return this;
   }
@@ -137,9 +131,6 @@ public class ProcessAssertions
   public ProcessAssertions replacing(
       @NonNull final Pattern regex,
       @NonNull final String replacement) {
-    isNotNull();
-    Assertions.assertThat(parent).isNotNull();
-    Assertions.assertThat(output).isNotNull();
     final Map.Entry<Pattern, String> entry =
       new AbstractMap.SimpleImmutableEntry<>(regex, replacement);
     replacements.add(entry);
@@ -147,6 +138,9 @@ public class ProcessAssertions
   }
 
   private boolean include(final String line) {
+    if (null != parent && !parent.include(line)) {
+      return false;
+    }
     for (final Predicate<String> exclusion : exclusions) {
       if (exclusion.test(line)) {
         return false;
@@ -162,6 +156,9 @@ public class ProcessAssertions
 
   private String rewrite(final String line) {
     String curr = line;
+    if (null != parent) {
+      line = parent.rewrite(line);
+    }
     for (final Map.Entry<Pattern, String> entry : replacements) {
       final Pattern regex = entry.getKey();
       final Matcher matcher = regex.matcher(curr);
