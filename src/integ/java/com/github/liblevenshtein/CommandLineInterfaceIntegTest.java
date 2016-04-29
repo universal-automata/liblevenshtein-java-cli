@@ -199,11 +199,12 @@ public class CommandLineInterfaceIntegTest {
   + "and may be one of the following:\n"
   + "  1. PROTOBUF\n"
   + "     - (de)serialize the dictionary as a protobuf stream.\n"
+  + "     - This is the preferred format.\n"
   + "     - See: https://developers.google.com/protocol-buffers/\n"
   + "  2. BYTECODE\n"
-  + "     - (de)serialized the dictionary as a Java, bytecode stream.\n"
+  + "     - (de)serialize the dictionary as a Java, bytecode stream.\n"
   + "  3. PLAIN_TEXT\n"
-  + "     - (de)serialized the dictionary as a plain text file.\n"
+  + "     - (de)serialize the dictionary as a plain text file.\n"
   + "     - Terms are delimited by newlines.\n"
   + "\n"
   + "<ALGORITHM> specifies the Levenshtein algorithm to use for\n"
@@ -398,13 +399,17 @@ public class CommandLineInterfaceIntegTest {
     try {
       ProcessAssertions assertions;
 
+      log.info("dictionary -> [{}]",
+        String.format("%s/build/resources/integrationTest/wordsEn.protobuf.bytes",
+          System.getProperty("user.dir")));
+
       // Pull the dictionary from the Jar
       assertThat(exec(
             isSorted,
             includeDistance,
             colorize,
             "--dictionary",
-              String.format("%s/build/resources/integrationTest/wordsEn.proto.bytes",
+              String.format("%s/build/resources/integrationTest/wordsEn.protobuf.bytes",
                 System.getProperty("user.dir")),
             "--source-format", "PROTOBUF",
             "--serialize", dictionaryPath,

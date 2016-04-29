@@ -19,8 +19,10 @@
 !/javadoc.options
 !/settings.gradle
 !/src/integ/java/**/*.java
+!/src/integ/resources/**/*.bytecode.bytes
+!/src/integ/resources/**/*.protobuf.bytes
+!/src/integ/resources/**/*.txt
 !/src/main/java/**/*.java
 !/src/main/java/**/lombok.config
-!/src/main/resources/**/*.txt
 !/src/main/resources/logback.groovy
 !/src/test/java/**/*.java
