@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -326,6 +327,7 @@ public class ProcessAssertions
    * @return This {@link ProcessAssertions} for fluency.
    * @throws AssertionError Whent the {@link #actual} process did not print the
    * transformed {@link #output} to its standard output stream.
+   * @throws IOException If the standard output cannot be read.
    */
   public ProcessAssertions toStandardOutput() throws IOException {
     isNotNull();
@@ -345,6 +347,7 @@ public class ProcessAssertions
    * @return This {@link ProcessAssertions} for fluency.
    * @throws AssertionError Whent the {@link #actual} process did not print the
    * transformed {@link #output} to its standard error stream.
+   * @throws IOException If the standard error cannot be read.
    */
   public ProcessAssertions toStandardError() throws IOException {
     isNotNull();
@@ -361,6 +364,7 @@ public class ProcessAssertions
   /**
    * Returns the standard output stream of the {@link #actual} process.
    * @return Standard output stream of the {@link #actual} process.
+   * @throws IOException If the standard output cannot be read.
    */
   private String standardOutput() throws IOException {
     return read(actual.getInputStream());
@@ -369,6 +373,7 @@ public class ProcessAssertions
   /**
    * Returns the standard error stream of the {@link #actual} process.
    * @return Standard error stream of the {@link #actual} process.
+   * @throws IOException If the standard error cannot be read.
    */
   private String standardError() throws IOException {
     return read(actual.getErrorStream());
@@ -388,7 +393,8 @@ public class ProcessAssertions
     final StringBuilder buffer = new StringBuilder();
 
     try (final BufferedReader reader =
-        new BufferedReader(new InputStreamReader(stream))) {
+        new BufferedReader(
+          new InputStreamReader(stream, StandardCharsets.UTF_8))) {
 
       final StringBuilder lineBuffer = new StringBuilder();
 

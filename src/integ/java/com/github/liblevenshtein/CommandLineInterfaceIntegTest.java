@@ -3,9 +3,7 @@ package com.github.liblevenshtein;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -307,7 +305,7 @@ public class CommandLineInterfaceIntegTest {
   }
 
   @SuppressWarnings("unchecked")
-  @DataProvider(name="sourceToTargetProvider")
+  @DataProvider(name = "sourceToTargetProvider")
   public Object[][] sourceToTargetProvider() {
     try {
       final boolean[] booleans = {false, true};
@@ -380,7 +378,7 @@ public class CommandLineInterfaceIntegTest {
     }
   }
 
-  @Test(dataProvider="sourceToTargetProvider")
+  @Test(dataProvider = "sourceToTargetProvider")
   public void testWithDistanceAndDictionaryFormatAndConversionFormat(
       final boolean isSorted,
       final String algorithm,
@@ -399,17 +397,13 @@ public class CommandLineInterfaceIntegTest {
     try {
       ProcessAssertions assertions;
 
-      log.info("dictionary -> [{}]",
-        String.format("%s/build/resources/integrationTest/wordsEn.protobuf.bytes",
-          System.getProperty("user.dir")));
-
       // Pull the dictionary from the Jar
       assertThat(exec(
             isSorted,
             includeDistance,
             colorize,
             "--dictionary",
-              String.format("%s/build/resources/integrationTest/wordsEn.protobuf.bytes",
+              String.format("%s/build/resources/integ/wordsEn.protobuf.bytes",
                 System.getProperty("user.dir")),
             "--source-format", "PROTOBUF",
             "--serialize", dictionaryPath,

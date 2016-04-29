@@ -18,7 +18,7 @@ repositories {
 }
 
 sourceSets {
-  integrationTest {
+  integ {
     java {
       compileClasspath += main.output + test.output
       runtimeClasspath += main.output + test.output
@@ -29,8 +29,8 @@ sourceSets {
 }
 
 configurations {
-  integrationTestCompile.extendsFrom testCompile
-  integrationTestRuntime.extendsFrom testRuntime
+  integCompile.extendsFrom testCompile
+  integRuntime.extendsFrom testRuntime
 }
 
 group = 'com.github.dylon'
@@ -118,15 +118,15 @@ test {
   }
 }
 
-task integrationTest(type: Test) {
+task integ(type: Test) {
   useTestNG() {
     // Run as many tests in-parallel as there are CPU cores
     parallel 'methods'
     threadCount Runtime.getRuntime().availableProcessors()
   }
 
-  testClassesDir = sourceSets.integrationTest.output.classesDir
-  classpath = sourceSets.integrationTest.runtimeClasspath
+  testClassesDir = sourceSets.integ.output.classesDir
+  classpath = sourceSets.integ.runtimeClasspath
   outputs.upToDateWhen { false } // always run integration tests
   testLogging {
     events "passed", "skipped", "failed"
@@ -187,23 +187,24 @@ task checkstyleMainHtml << {
     out: new File(checkstyleMain.reports.xml.destination.parent, 'main.html'))
 }
 
-//task checkstyleTestHtml << {
-  //ant.xslt(
-    //in: checkstyleTest.reports.xml.destination,
-    //style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
-    //out: new File(checkstyleTest.reports.xml.destination.parent, 'test.html'))
-//}
+task checkstyleTestHtml << {
+  ant.xslt(
+    in: checkstyleTest.reports.xml.destination,
+    style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
+    out: new File(checkstyleTest.reports.xml.destination.parent, 'test.html'))
+}
 
-//task checkstyleIntegrationTestHtml << {
-  //ant.xslt(
-    //in: checkstyleIntegrationTest.reports.xml.destination,
-    //style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
-    //out: new File(checkstyleIntegrationTest.reports.xml.destination.parent, 'test.html'))
-//}
+task checkstyleIntegHtml << {
+  ant.xslt(
+    in: checkstyleInteg.reports.xml.destination,
+    style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
+    out: new File(checkstyleInteg.reports.xml.destination.parent, 'integ.html'))
+}
 
 checkstyleMain.finalizedBy checkstyleMainHtml
-//checkstyleTest.finalizedBy checkstyleTestHtml
-//checkstyleIntegrationTest.finalizedBy checkstyleIntegrationTestHtml
+checkstyleTest.finalizedBy checkstyleTestHtml
+checkstyleInteg.finalizedBy checkstyleIntegHtml
 
-check.dependsOn integrationTest
-integrationTest.mustRunAfter test
+check.dependsOn integ
+integ.mustRunAfter test
+integ.dependsOn installDist
