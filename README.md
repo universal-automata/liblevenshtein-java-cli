@@ -197,3 +197,14 @@ $ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --dictiona
 | "mispelling" ~ "misspelling"
 | "mispelling" ~ "misspellings"
 ```
+
+##### Supported, dictionary sources
+
+The library is designed to read dictionaries from filesystem paths,
+Java-compatible URIs (including web URLs and [Jar resources][jar-resource-uri]),
+[process substitutions][proc-sub] in Unix shells, and standard input
+(e.g. [piped input][shell-piping]).
+
+[proc-sub]: http://tldp.org/LDP/abs/html/process-sub.html "Chapter 23. Process Substitution"
+[shell-piping]: http://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO-4.html "4. Pipes"
+[jar-resource-uri]: http://stackoverflow.com/a/2049705/206543 "Get a File or URI object for a file inside an archive with Java?"
