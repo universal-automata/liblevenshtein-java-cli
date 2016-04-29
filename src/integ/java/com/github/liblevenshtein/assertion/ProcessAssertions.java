@@ -19,16 +19,59 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 
+/**
+ * AssertJ-style assertions for {@link Process}.
+ */
 public class ProcessAssertions
     extends AbstractAssert<ProcessAssertions, Process> {
 
+  /**
+   * Exit code returned by a process when it completes successfully.
+   */
+  private static final int EXIT_SUCCESS = 0;
+
+  /**
+   * Specifies which lines to exclude (blacklist) from comparison in
+   * {@link #toStandardOutput()} and {@link #toStandardError()}.
+   */
   private final List<Predicate<String>> exclusions = new LinkedList<>();
+
+  /**
+   * Specifies which lines to include (whitelist) from comparison in
+   * {@link #toStandardOutput()} and {@link #toStandardError()}.
+   */
   private final List<Predicate<String>> inclusions = new LinkedList<>();
+
+  /**
+   * Specifies how to rewrite lines in {@link #toStandardOutput()} and
+   * {@link #toStandardError()}.
+   */
   private final List<Map.Entry<Pattern, String>> replacements = new LinkedList<>();
 
+  /**
+   * Hierarchical assertions.  Calls to {@link #include(String)} and
+   * {@link #rewrite(String)} call the corresponding methods on {@link #parent}
+   * first, and calls to {@link #toStandardOutput()} and
+   * {@link #toStandardError()} return {@link #parent} for fluency.
+   */
   private final ProcessAssertions parent;
+
+  /**
+   * Printed string to assert-against in {@link #toStandardOutput()} and
+   * {@link #toStandardError()}.
+   */
   private final String output;
 
+  /**
+   * Initializes a new {@link ProcessAssertions} with a {@link Process} to
+   * assert-against, a parent {@link ProcessAssertions} to reference in various
+   * methods, and a printed string to assert-agsinst in
+   * {@link #toStandardOutput()} and {@link #toStandardError()}.
+   * @param actual {@link Process} to assert-against.
+   * @param parent Parent {@link ProcessAssertions} of this one.
+   * @param output Printed string to compare in {@link #toStandardOutput()} and
+   * {@link #toStandardError()}.
+   */
   public ProcessAssertions(
       final Process actual,
       final ProcessAssertions parent,
@@ -38,24 +81,32 @@ public class ProcessAssertions
     this.output = output;
   }
 
+  /**
+   * Initializes a new {@link ProcessAssertions} with a {@link Process} to
+   * assert-against.
+   * @param actual {@link Process} to assert-against.
+   */
   public ProcessAssertions(final Process actual) {
     this(actual, null, null);
   }
 
+  /**
+   * Initializes a new {@link ProcessAssertions} with a {@link Process} to
+   * assert-against.
+   * @param actual {@link Process} to assert-against.
+   * @return New {@link ProcessAssertions} to assert-against.
+   */
   public static ProcessAssertions assertThat(final Process actual) {
     return new ProcessAssertions(actual);
   }
 
-  public static ProcessAssertions assertThat(final List<String> command) throws IOException {
-    final Process actual = new ProcessBuilder(command).start();
-    return assertThat(actual);
-  }
-
-  public static ProcessAssertions assertThat(final String... command) throws IOException {
-    final Process actual = new ProcessBuilder(command).start();
-    return assertThat(actual);
-  }
-
+  /**
+   * Asserts that the process exited with the given code.
+   * @param exitCode Expected, exit code of the process.
+   * @return This {@link ProcessAssertions} for fluency.
+   * @throws AssertionError When the process did not exit with the expected
+   * code.
+   */
   public ProcessAssertions exitedWith(final int exitCode) {
     isNotNull();
     if (exitCode != actual.exitValue()) {
@@ -65,6 +116,12 @@ public class ProcessAssertions
     return this;
   }
 
+  /**
+   * Asserts that the process did not exit with a specific code.
+   * @param exitCode Unexpected, exit code of the process.
+   * @return This {@link ProcessAssertions} for fluency.
+   * @throws AssertionError When the process exited with the exit code.
+   */
   public ProcessAssertions didNotExitWith(final int exitCode) {
     isNotNull();
     if (exitCode == actual.exitValue()) {
@@ -74,53 +131,127 @@ public class ProcessAssertions
     return this;
   }
 
+  /**
+   * Asserts that the process exited successfully.
+   * @return This {@link ProcessAssertions} for fluency.
+   * @throws AssertionError When the process exited with a failure.
+   */
   public ProcessAssertions succeeded() {
-    return exitedWith(0);
+    return exitedWith(EXIT_SUCCESS);
   }
 
+  /**
+   * Asserts that the process exited with a failure.
+   * @return This {@link ProcessAssertions} for fluency.
+   * @throws AssertionError When the process exited successfully.
+   */
   public ProcessAssertions failed() {
-    return didNotExitWith(0);
+    return didNotExitWith(EXIT_SUCCESS);
   }
 
+  /**
+   * Sets the printed value to assert-against in {@link #toStandardOutput()} and
+   * {@link #toStandardError()}.  This method does not set {@link #output} on
+   * this {@link ProcessAssertions}, but returns a new {@link ProcessAssertions}
+   * with {@link #output}.  This is to avoid issues with mutation in the current
+   * assertions.
+   * @param output Printed value to assert-against.
+   * @return New {@link ProcessAssertions} having {@link #output} to
+   * assert-against.
+   */
   public ProcessAssertions printed(@NonNull final String output) {
-    isNotNull();
     return new ProcessAssertions(actual, this, output);
   }
 
+  /**
+   * Adds a rule for lines to ignore when comparing the printed output.
+   * @param pattern Specifies lines to exclude.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions excluding(@NonNull final String pattern) {
     return excluding(Pattern.compile(pattern));
   }
 
+  /**
+   * Adds a rule for lines to ignore when comparing the printed output.
+   * @param regex Specifies lines to exclude.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions excluding(@NonNull final Pattern regex) {
     return excluding(regex.asPredicate());
   }
 
+  /**
+   * Adds a rule for lines to ignore when comparing the printed output.
+   * @param exclusion Specifies lines to exclude.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions excluding(@NonNull final Predicate<String> exclusion) {
     exclusions.add(exclusion);
     return this;
   }
 
+  /**
+   * Adds a rule for lines to include when comparing the printed output.
+   * @param pattern Specifies lines to include.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions including(@NonNull final String pattern) {
     return including(Pattern.compile(pattern));
   }
 
+  /**
+   * Adds a rule for lines to include when comparing the printed output.
+   * @param regex Specifies lines to include.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions including(@NonNull final Pattern regex) {
     return including(regex.asPredicate());
   }
 
+  /**
+   * Adds a rule for lines to include when comparing the printed output.
+   * @param inclusion Specifies lines to include.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions including(@NonNull final Predicate<String> inclusion) {
     inclusions.add(inclusion);
     return this;
   }
 
+  /**
+   * Adds a rule for patterns to remove from lines of the compared output.
+   * @param pattern Pattern to remove from lines of the compared output.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions stripping(@NonNull final String pattern) {
     return replacing(pattern, "");
   }
 
+  /**
+   * Adds a rule for patterns to remove from lines of the compared output.
+   * @param regex Pattern to remove from lines of the compared output.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions stripping(@NonNull final Pattern regex) {
     return replacing(regex, "");
   }
 
+  /**
+   * Removes whitespace from the beginning and ending of lines of the compared
+   * output.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
+  public ProcessAssertions trim() {
+    return replacing("^\\s+|\\s+$", "");
+  }
+
+  /**
+   * Specifies a pattern for replacement in lines of the compared output.
+   * @param pattern Pattern for replacement.
+   * @param replacement What to replace the pattern with.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions replacing(
       @NonNull final String pattern,
       @NonNull final String replacement) {
@@ -128,6 +259,12 @@ public class ProcessAssertions
     return replacing(regex, replacement);
   }
 
+  /**
+   * Specifies a pattern for replacement in lines of the compared output.
+   * @param regex Pattern for replacement.
+   * @param replacement What to replace the pattern with.
+   * @return This {@link ProcessAssertions} for fluency.
+   */
   public ProcessAssertions replacing(
       @NonNull final Pattern regex,
       @NonNull final String replacement) {
@@ -137,6 +274,13 @@ public class ProcessAssertions
     return this;
   }
 
+  /**
+   * Determines whether to include a line in the compared output.  This method
+   * recursively calls {@link #include(String)} on {@link #paren}, and returns
+   * false if the {@link #parent} returns false.
+   * @param line Line whose inclusion is to be determined.
+   * @return Whether to include {@link #line} in the compared output.
+   */
   private boolean include(final String line) {
     if (null != parent && !parent.include(line)) {
       return false;
@@ -154,10 +298,16 @@ public class ProcessAssertions
     return true;
   }
 
+  /**
+   * Rewrites a line according to the rules in {@link #replacements} and those
+   * of {@link #parent}.
+   * @param line Line of output to rewrite.
+   * @return Rewritten line.
+   */
   private String rewrite(final String line) {
     String curr = line;
     if (null != parent) {
-      line = parent.rewrite(line);
+      curr = parent.rewrite(curr);
     }
     for (final Map.Entry<Pattern, String> entry : replacements) {
       final Pattern regex = entry.getKey();
@@ -170,6 +320,13 @@ public class ProcessAssertions
     return curr;
   }
 
+  /**
+   * Asserts that the process printed the transformed {@link #output} to its
+   * standard output stream.
+   * @return This {@link ProcessAssertions} for fluency.
+   * @throws AssertionError Whent the {@link #actual} process did not print the
+   * transformed {@link #output} to its standard output stream.
+   */
   public ProcessAssertions toStandardOutput() throws IOException {
     isNotNull();
     Assertions.assertThat(parent).isNotNull();
@@ -182,6 +339,13 @@ public class ProcessAssertions
     return parent;
   }
 
+  /**
+   * Asserts that the process printed the transformed {@link #output} to its
+   * standard error stream.
+   * @return This {@link ProcessAssertions} for fluency.
+   * @throws AssertionError Whent the {@link #actual} process did not print the
+   * transformed {@link #output} to its standard error stream.
+   */
   public ProcessAssertions toStandardError() throws IOException {
     isNotNull();
     Assertions.assertThat(parent).isNotNull();
@@ -194,14 +358,32 @@ public class ProcessAssertions
     return parent;
   }
 
+  /**
+   * Returns the standard output stream of the {@link #actual} process.
+   * @return Standard output stream of the {@link #actual} process.
+   */
   private String standardOutput() throws IOException {
     return read(actual.getInputStream());
   }
 
+  /**
+   * Returns the standard error stream of the {@link #actual} process.
+   * @return Standard error stream of the {@link #actual} process.
+   */
   private String standardError() throws IOException {
     return read(actual.getErrorStream());
   }
 
+  /**
+   * Reads a the stream into a string.  This method resolves carriage returns,
+   * only includes lines that are not blacklisted, if there is a whitelist it
+   * only includes lines that are whitelisted, and it transforms included lines
+   * according to the rewrite rules.
+   * @param stream Standard output or error stream of the {@link #actual}
+   * process.
+   * @return Accepted, rewritten lines of the {@link #stream}.
+   * @throws IOException When the content cannot be read from {@link #stream}.
+   */
   private String read(final InputStream stream) throws IOException {
     final StringBuilder buffer = new StringBuilder();
 

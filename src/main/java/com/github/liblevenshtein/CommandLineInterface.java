@@ -120,27 +120,9 @@ public class CommandLineInterface implements Runnable {
   private static final Joiner PIPES = Joiner.on("|");
 
   /**
-   * Default, path to the dictionary.
+   * Joins elements with newlines.
    */
-  private static final URI DEFAULT_DICTIONARY;
-
-  static {
-    try {
-      DEFAULT_DICTIONARY =
-        new URI(String.format("jar:file://%s!/wordsEn.txt",
-          CommandLineInterface.class
-            .getProtectionDomain()
-            .getCodeSource()
-            .getLocation()
-            .toURI()
-            .getPath()));
-    }
-    catch (final URISyntaxException exception) {
-      final String message = "Failed to initialize DEFAULT_DICTIONARY";
-      log.error(message, exception);
-      throw new RuntimeException(message, exception);
-    }
-  }
+  private static final Joiner NEWLINES = Joiner.on("\n");
 
   /**
    * Command-line parameters of this action.
@@ -166,11 +148,13 @@ public class CommandLineInterface implements Runnable {
       if (0 == args.length) {
         printHelp(EXIT_ERROR);
       }
+      for (final String arg : args) {
+        if ("--help".equals(arg) || "-h".equals(arg)) {
+          printHelp(EXIT_SUCCESS);
+        }
+      }
       final DefaultParser parser = new DefaultParser();
       final CommandLine cli = parser.parse(options(), args);
-      if (cli.hasOption("help")) {
-        printHelp(EXIT_SUCCESS);
-      }
       return cli;
     }
     catch (final AlreadySelectedException exception) {
@@ -225,16 +209,9 @@ public class CommandLineInterface implements Runnable {
     }
 
     try {
-      final URI uri = (null == path)
-        ? DEFAULT_DICTIONARY
-        : RE_PROTO.matcher(path).matches()
-          ? new URI(path)
-          : Paths.get(path).toUri();
-
-      if (null == path) {
-        log.warn("No dictionary specified, defaulting to [{}]",
-          DEFAULT_DICTIONARY);
-      }
+      final URI uri = RE_PROTO.matcher(path).matches()
+        ? new URI(path)
+        : Paths.get(path).toUri();
 
       return uri.toURL().openStream();
     }
@@ -381,10 +358,9 @@ public class CommandLineInterface implements Runnable {
       Option.builder("d")
         .longOpt("dictionary")
         .argName("PATH|URI")
-        .desc(String.format(
-          "Filesystem path or Java-compatible URI to a dictionary of terms "
-          + "(Default: %s)", DEFAULT_DICTIONARY))
+        .desc("Filesystem path or Java-compatible URI to a dictionary of terms")
         .hasArg()
+        .required()
         .build());
     options.addOption(
       Option.builder("s")
@@ -395,7 +371,7 @@ public class CommandLineInterface implements Runnable {
     options.addOption(
       Option.builder("a")
         .longOpt("algorithm")
-        .argName(PIPES.join(Algorithm.values()))
+        .argName("ALGORITHM")
         .desc(String.format("Levenshtein algorithm to use (Default: %s)",
           DEFAULT_ALGORITHM))
         .hasArg()
@@ -417,8 +393,8 @@ public class CommandLineInterface implements Runnable {
     options.addOption(
       Option.builder("q")
         .longOpt("query")
-        .argName("STRING> <STRING> <...")
-        .desc("Terms to query against the dictionary")
+        .argName("STRING> <...")
+        .desc("Terms to query against the dictionary.  You may specify multiple terms.")
         .hasArgs()
         .build());
     options.addOption(
@@ -431,14 +407,14 @@ public class CommandLineInterface implements Runnable {
     options.addOption(
       Option.builder()
         .longOpt("source-format")
-        .argName(PIPES.join(SerializationFormat.values()))
-        .desc("Format of the source dictionary (Default: adaptive)")
+        .argName("FORMAT")
+        .desc("Format of the source dictionary (Default: adaptively-try each format until one works)")
         .hasArg()
         .build());
     options.addOption(
       Option.builder()
         .longOpt("target-format")
-        .argName(PIPES.join(SerializationFormat.values()))
+        .argName("FORMAT")
         .desc(String.format("Format of the serialized dictionary (Default: %s)",
           DEFAULT_FORMAT))
         .hasArg()
@@ -470,7 +446,56 @@ public class CommandLineInterface implements Runnable {
   private void printHelp(final int exitCode) {
     final HelpFormatter formatter = new HelpFormatter();
     final String name = "liblevenshtein-java-cli";
-    final String header = "Command-Line Interface to liblevenshtein (Java)\n\n";
+    final String header = String.format("%s%n%n", NEWLINES.join(
+      "",
+      "Command-Line Interface to liblevenshtein (Java)",
+      "",
+      "<FORMAT> specifies the serialization format of the dictionary,",
+      "and may be one of the following:",
+      "  1. PROTOBUF",
+      "     - (de)serialize the dictionary as a protobuf stream.",
+      "     - See: https://developers.google.com/protocol-buffers/",
+      "  2. BYTECODE",
+      "     - (de)serialized the dictionary as a Java, bytecode stream.",
+      "  3. PLAIN_TEXT",
+      "     - (de)serialized the dictionary as a plain text file.",
+      "     - Terms are delimited by newlines.",
+      "",
+      "<ALGORITHM> specifies the Levenshtein algorithm to use for",
+      "querying-against the dictionary, and may be one of the following:",
+      "  1. STANDARD",
+      "     - Use the standard, Levenshtein distance which considers the",
+      "     following elementary operations:",
+      "       o Insertion",
+      "       o Deletion",
+      "       o Substitution",
+      "     - An elementary operation is an operation that incurs a penalty of",
+      "     one unit.",
+      "  2. TRANSPOSITION",
+      "     - Extend the standard, Levenshtein distance to include transpositions",
+      "     as elementary operations.",
+      "       o A transposition is a swapping of two, consecutive characters as",
+      "       follows: ba -> ab",
+      "       o With the standard distance, this would require at least two",
+      "       operations:",
+      "         + An insertion and a deletion",
+      "         + A deletion and an insertion",
+      "         + Two substitutions",
+      "  3. MERGE_AND_SPLIT",
+      "     - Extend the standard, Levenshtein distance to include merges and",
+      "     splits as elementary operations.",
+      "       o A merge takes two characters and merges them into a single one.",
+      "         + For example: ab -> c",
+      "       o A split takes a single character and splits it into two others",
+      "         + For example: a -> bc",
+      "       o With the standard distance, these would require at least two",
+      "       operations:",
+      "         + Merge:",
+      "           > A deletion and a substitution",
+      "           > A substitution and a deletion",
+      "         + Split:",
+      "           > An insertion and a substitution",
+      "           > A substitution and an insertion"));
     final String footer =
       String.format(
         "%nExample: %s \\%n"
