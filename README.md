@@ -36,78 +36,81 @@ This build could be faster, please consider using the Gradle Daemon: https://doc
 
 ```
 $ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --help
-13:21:24.651 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--help]
-usage: liblevenshtein-java-cli [-a
-       <STANDARD|TRANSPOSITION|MERGE_AND_SPLIT>] [--colorize] [-d
-       <PATH|URI>] [-h] [-i] [-m <INTEGER>] [-q <STRING> <STRING> <...>]
-       [-s] [--serialize <PATH>] [--source-format
-       <PROTOBUF|BYTECODE|PLAIN_TEXT>] [--target-format
-       <PROTOBUF|BYTECODE|PLAIN_TEXT>]
+20:00:34.433 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--help]
+usage: liblevenshtein-java-cli [-a <ALGORITHM>] [--colorize] -d <PATH|URI>
+       [-h] [-i] [-m <INTEGER>] [-q <STRING> <...>] [-s] [--serialize
+       <PATH>] [--source-format <FORMAT>] [--target-format <FORMAT>]
+
 Command-Line Interface to liblevenshtein (Java)
 
- -a,--algorithm <STANDARD|TRANSPOSITION|MERGE_AND_SPLIT>   Levenshtein
-                                                           algorithm to
-                                                           use (Default:
-                                                           TRANSPOSITION)
-    --colorize                                             Colorize output
- -d,--dictionary <PATH|URI>                                Filesystem path
-                                                           or
-                                                           Java-compatible
-                                                           URI to a
-                                                           dictionary of
-                                                           terms (Default:
-                                                           jar:file:///hom
-                                                           e/dylon/Workspa
-                                                           ce/liblevenshte
-                                                           in-java/java-cl
-                                                           i/build/install
-                                                           /liblevenshtein
-                                                           -java-cli/lib/l
-                                                           iblevenshtein-j
-                                                           ava-cli-2.2.1.j
-                                                           ar!/wordsEn.txt
-                                                           )
- -h,--help                                                 print this help
-                                                           text
- -i,--include-distance                                     Include the
-                                                           Levenshtein
-                                                           distance with
-                                                           each spelling
-                                                           candidate
-                                                           (Default:
-                                                           false)
- -m,--max-distance <INTEGER>                               Maximun,
-                                                           Levenshtein
-                                                           distance a
-                                                           spelling
-                                                           candidatemay be
-                                                           from the query
-                                                           term (Default:
-                                                           2)
- -q,--query <STRING> <STRING> <...>                        Terms to query
-                                                           against the
-                                                           dictionary
- -s,--is-sorted                                            Specifies that
-                                                           the dictionary
-                                                           is sorted
-                                                           lexicographical
-                                                           ly, in
-                                                           ascending order
-                                                           (Default:
-                                                           false)
-    --serialize <PATH>                                     Path to save
-                                                           the serialized
-                                                           dictionary
-    --source-format <PROTOBUF|BYTECODE|PLAIN_TEXT>         Format of the
-                                                           source
-                                                           dictionary
-                                                           (Default:
-                                                           adaptive)
-    --target-format <PROTOBUF|BYTECODE|PLAIN_TEXT>         Format of the
-                                                           serialized
-                                                           dictionary
-                                                           (Default:
-                                                           PROTOBUF)
+<FORMAT> specifies the serialization format of the dictionary,
+and may be one of the following:
+  1. PROTOBUF
+     - (de)serialize the dictionary as a protobuf stream.
+     - See: https://developers.google.com/protocol-buffers/
+  2. BYTECODE
+     - (de)serialized the dictionary as a Java, bytecode stream.
+  3. PLAIN_TEXT
+     - (de)serialized the dictionary as a plain text file.
+     - Terms are delimited by newlines.
+
+<ALGORITHM> specifies the Levenshtein algorithm to use for
+querying-against the dictionary, and may be one of the following:
+  1. STANDARD
+     - Use the standard, Levenshtein distance which considers the
+     following elementary operations:
+       o Insertion
+       o Deletion
+       o Substitution
+     - An elementary operation is an operation that incurs a penalty of
+     one unit.
+  2. TRANSPOSITION
+     - Extend the standard, Levenshtein distance to include transpositions
+     as elementary operations.
+       o A transposition is a swapping of two, consecutive characters as
+       follows: ba -> ab
+       o With the standard distance, this would require at least two
+       operations:
+         + An insertion and a deletion
+         + A deletion and an insertion
+         + Two substitutions
+  3. MERGE_AND_SPLIT
+     - Extend the standard, Levenshtein distance to include merges and
+     splits as elementary operations.
+       o A merge takes two characters and merges them into a single one.
+         + For example: ab -> c
+       o A split takes a single character and splits it into two others
+         + For example: a -> bc
+       o With the standard distance, these would require at least two
+       operations:
+         + Merge:
+           > A deletion and a substitution
+           > A substitution and a deletion
+         + Split:
+           > An insertion and a substitution
+           > A substitution and an insertion
+
+ -a,--algorithm <ALGORITHM>    Levenshtein algorithm to use (Default:
+                               TRANSPOSITION)
+    --colorize                 Colorize output
+ -d,--dictionary <PATH|URI>    Filesystem path or Java-compatible URI to a
+                               dictionary of terms
+ -h,--help                     print this help text
+ -i,--include-distance         Include the Levenshtein distance with each
+                               spelling candidate (Default: false)
+ -m,--max-distance <INTEGER>   Maximun, Levenshtein distance a spelling
+                               candidatemay be from the query term
+                               (Default: 2)
+ -q,--query <STRING> <...>     Terms to query against the dictionary.  You
+                               may specify multiple terms.
+ -s,--is-sorted                Specifies that the dictionary is sorted
+                               lexicographically, in ascending order
+                               (Default: false)
+    --serialize <PATH>         Path to save the serialized dictionary
+    --source-format <FORMAT>   Format of the source dictionary (Default:
+                               adaptively-try each format until one works)
+    --target-format <FORMAT>   Format of the serialized dictionary
+                               (Default: PROTOBUF)
 
 Example: liblevenshtein-java-cli \
   --algorithm TRANSPOSITION \
