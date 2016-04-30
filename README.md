@@ -1,7 +1,8 @@
 # [liblevenshtein-java-cli][java-cli]
 
-Command-line interface to [liblevenshein-java][java-lib].  Tagged releases of
-[liblevenshtein-java-cli][java-cli] follow the corresponding, tagged releases of
+Command-line interface to [liblevenshein-java][java-lib].
+[Tagged releases][cli-releases] of [liblevenshtein-java-cli][java-cli] follow
+the corresponding, [tagged releases][lib-releases] of
 [liblevenshtein-java][java-lib].
 
 ##### Cloning the repository
@@ -216,3 +217,5 @@ Java-compatible URIs (including web URLs and [Jar resources][jar-resource-uri]),
 [jar-resource-uri]: http://stackoverflow.com/a/2049705/206543 "Get a File or URI object for a file inside an archive with Java?"
 [java-cli]: https://github.com/universal-automata/liblevenshtein-java-cli "liblevenshtein-java-cli"
 [java-lib]: https://github.com/universal-automata/liblevenshtein-java "liblevenshtein-java"
+[cli-releases]: https://github.com/universal-automata/liblevenshtein-java-cli/releases "Command-line interface, tagged releases"
+[lib-releases]: https://github.com/universal-automata/liblevenshtein-java/releases "Library, tagged releases"
