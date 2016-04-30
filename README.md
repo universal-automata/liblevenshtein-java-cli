@@ -1,3 +1,9 @@
+# [liblevenshtein-java-cli][java-cli]
+
+Command-line interface to [liblevenshein-java][java-lib].  Tagged releases of
+[liblevenshtein-java-cli][java-cli] follow the corresponding, tagged releases of
+[liblevenshtein-java][java-lib].
+
 ##### Cloning the repository
 
 ```
@@ -208,3 +214,5 @@ Java-compatible URIs (including web URLs and [Jar resources][jar-resource-uri]),
 [proc-sub]: http://tldp.org/LDP/abs/html/process-sub.html "Chapter 23. Process Substitution"
 [shell-piping]: http://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO-4.html "4. Pipes"
 [jar-resource-uri]: http://stackoverflow.com/a/2049705/206543 "Get a File or URI object for a file inside an archive with Java?"
+[java-cli]: https://github.com/universal-automata/liblevenshtein-java-cli "liblevenshtein-java-cli"
+[java-lib]: https://github.com/universal-automata/liblevenshtein-java "liblevenshtein-java"
