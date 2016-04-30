@@ -35,7 +35,7 @@ configurations {
 
 group = 'com.github.dylon'
 archivesBaseName = name
-version = '2.2.1' // http://semver.org/
+version = '2.2.2' // http://semver.org/
 
 description = 'Command-Line Interface to liblevenshtein (Java)'
 

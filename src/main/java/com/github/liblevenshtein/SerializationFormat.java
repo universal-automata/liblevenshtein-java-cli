@@ -26,6 +26,10 @@ public enum SerializationFormat {
   /**
    * Expected content-type of the serialization format.  The content type does
    * not have to be the expected type, but it should be.
+   * -- GETTER --
+   * Expected content-type of the serialization format.  The content type does
+   * not have to be the expected type, but it should be.
+   * @return Expected content-type of the serialization format.
    */
   private final String contentType;
 }

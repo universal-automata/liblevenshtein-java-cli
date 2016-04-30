@@ -1,22 +1,15 @@
 package com.github.liblevenshtein;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
@@ -31,16 +24,13 @@ import com.google.common.base.Joiner;
 
 import lombok.extern.slf4j.Slf4j;
 
-import com.github.dylon.liblevenshtein.collection.dawg.DawgNode;
 import com.github.dylon.liblevenshtein.collection.dawg.SortedDawg;
-import com.github.dylon.liblevenshtein.collection.dawg.factory.DawgNodeFactory;
-import com.github.dylon.liblevenshtein.collection.dawg.factory.PrefixFactory;
-import com.github.dylon.liblevenshtein.collection.dawg.factory.TransitionFactory;
 import com.github.dylon.liblevenshtein.levenshtein.Algorithm;
 import com.github.dylon.liblevenshtein.levenshtein.ITransducer;
 import com.github.dylon.liblevenshtein.levenshtein.factory.TransducerBuilder;
 import com.github.dylon.liblevenshtein.serialization.BytecodeSerializer;
 import com.github.dylon.liblevenshtein.serialization.ProtobufSerializer;
+import com.github.dylon.liblevenshtein.serialization.PlainTextSerializer;
 import com.github.dylon.liblevenshtein.serialization.Serializer;
 
 /**
@@ -429,33 +419,6 @@ public class CommandLineInterface extends Action {
   }
 
   /**
-   * Deserializes the dictionary as a plain text stream (newline-delimited
-   * terms).
-   * @return Deserialized dictionary.
-   * @throws Exception When the dictionary cannot be deserialized.
-   */
-  private SortedDawg deserializePlainText() throws Exception {
-    try (final BufferedReader reader =
-        new BufferedReader(
-          new InputStreamReader(dictionary(), StandardCharsets.UTF_8))) {
-
-      final Collection<String> terms = isSorted()
-        ? new LinkedList<>()
-        : new TreeSet<>();
-
-      for (String term = reader.readLine(); null != term; term = reader.readLine()) {
-        terms.add(term);
-      }
-
-      return new SortedDawg(
-        new PrefixFactory<DawgNode>(),
-        new DawgNodeFactory(),
-        new TransitionFactory<DawgNode>(),
-        terms);
-    }
-  }
-
-  /**
    * Deserialize the dictionary using the specified format.
    * @param format Serialization format of the dictionary stream.
    * @return Dictionary desized using the specified format.
@@ -467,7 +430,10 @@ public class CommandLineInterface extends Action {
       case PROTOBUF:
         return deserialize(new ProtobufSerializer());
       case PLAIN_TEXT:
-        return deserializePlainText();
+        if (isSorted()) {
+          return deserialize(new PlainTextSerializer(true));
+        }
+        return deserialize(new PlainTextSerializer(false));
       case BYTECODE:
         return deserialize(new BytecodeSerializer());
       default:
@@ -621,7 +587,12 @@ public class CommandLineInterface extends Action {
         serialize(dictionary, new ProtobufSerializer());
         break;
       case PLAIN_TEXT:
-        serializePlainText(dictionary);
+        if (isSorted()) {
+          serialize(dictionary, new PlainTextSerializer(true));
+        }
+        else {
+          serialize(dictionary, new PlainTextSerializer(false));
+        }
         break;
       case BYTECODE:
         serialize(dictionary, new BytecodeSerializer());
@@ -645,20 +616,6 @@ public class CommandLineInterface extends Action {
       final Serializer serializer) throws Exception {
     try (final OutputStream stream = Files.newOutputStream(serializationPath())) {
       serializer.serialize(dictionary, stream);
-    }
-  }
-
-  /**
-   * Serializes a dictionary to the desired location, as a plain text file.
-   * @param dictionary Dictionary to serialize.
-   * @throws Exception If the dictionary cannot be serialized.
-   */
-  private void serializePlainText(final SortedDawg dictionary) throws Exception {
-    try (final BufferedWriter writer = Files.newBufferedWriter(serializationPath())) {
-      for (final String term : dictionary) {
-        writer.write(term);
-        writer.newLine();
-      }
     }
   }
 
