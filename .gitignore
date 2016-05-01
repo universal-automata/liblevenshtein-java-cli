@@ -6,6 +6,7 @@
 
 # Whitelist the following files and directories:
 !/.gitignore
+!/.travis.yml
 !/CHANGELOG.md
 !/LICENSE
 !/README.md
