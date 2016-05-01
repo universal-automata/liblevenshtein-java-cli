@@ -209,9 +209,10 @@ public class CommandLineInterfaceIntegTest {
   + "| \"eb\" ~ \"with\"\n";
 
   private static final String HELP_TEXT =
-    "usage: liblevenshtein-java-cli [-a <ALGORITHM>] [--colorize] -d <PATH|URI>\n"
-  + "       [-h] [-i] [-m <INTEGER>] [-q <STRING> <...>] [-s] [--serialize\n"
-  + "       <PATH>] [--source-format <FORMAT>] [--target-format <FORMAT>]\n"
+    "usage: liblevenshtein-java-cli [-a <ALGORITHM>] [--colorize] [-d\n"
+  + "       <PATH|URI>] [-h] [-i] [-m <INTEGER>] [-q <STRING> <...>] [-s]\n"
+  + "       [--serialize <PATH>] [--source-format <FORMAT>] [--target-format\n"
+  + "       <FORMAT>]\n"
   + "\n"
   + "Command-Line Interface to liblevenshtein (Java)\n"
   + "\n"
