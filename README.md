@@ -27,7 +27,7 @@ $ cd liblevenshtein-java-cli
 ##### Building the command-line interface
 
 ```
-$ gradle installDist
+$ ./gradlew installDist
 :compileJavawarning: No processor claimed any of these annotations: lombok.extern.slf4j.Slf4j,lombok.experimental.ExtensionMethod,lombok.Getter,lombok.RequiredArgsConstructor,edu.umd.cs.findbugs.annotations.SuppressFBWarnings
 1 warning
 

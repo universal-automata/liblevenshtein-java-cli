@@ -15,8 +15,12 @@
 !/config/**/*.xsl
 !/gradle.properties
 !/gradle/wrapper/gradle-wrapper.jar
+!/gradle/wrapper/gradle-wrapper.jar
+!/gradle/wrapper/gradle-wrapper.properties
 !/gradle/wrapper/gradle-wrapper.properties
 !/gradlew
+!/gradlew
+!/gradlew.bat
 !/gradlew.bat
 !/javadoc.options
 !/settings.gradle
