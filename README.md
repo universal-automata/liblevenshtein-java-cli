@@ -44,9 +44,10 @@ This build could be faster, please consider using the Gradle Daemon: https://doc
 ```
 $ ./build/install/liblevenshtein-java-cli/bin/liblevenshtein-java-cli --help
 20:00:34.433 [main] INFO  c.g.l.CommandLineInterface - Parsing command-line args [--help]
-usage: liblevenshtein-java-cli [-a <ALGORITHM>] [--colorize] -d <PATH|URI>
-       [-h] [-i] [-m <INTEGER>] [-q <STRING> <...>] [-s] [--serialize
-       <PATH>] [--source-format <FORMAT>] [--target-format <FORMAT>]
+usage: liblevenshtein-java-cli [-a <ALGORITHM>] [--colorize] [-d
+       <PATH|URI>] [-h] [-i] [-m <INTEGER>] [-q <STRING> <...>] [-s]
+       [--serialize <PATH>] [--source-format <FORMAT>] [--target-format
+       <FORMAT>]
 
 Command-Line Interface to liblevenshtein (Java)
 
