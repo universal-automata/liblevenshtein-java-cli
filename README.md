@@ -1,5 +1,7 @@
 # [liblevenshtein-java-cli][java-cli]
 
+[![Gitter][gitter-badge]][gitter-channel]
+
 Command-line interface to [liblevenshein-java][java-lib].
 [Tagged releases][cli-releases] of [liblevenshtein-java-cli][java-cli] follow
 the corresponding, [tagged releases][lib-releases] of
@@ -220,3 +222,5 @@ Java-compatible URIs (including web URLs and [Jar resources][jar-resource-uri]),
 [java-lib]: https://github.com/universal-automata/liblevenshtein-java "liblevenshtein-java"
 [cli-releases]: https://github.com/universal-automata/liblevenshtein-java-cli/releases "Command-line interface, tagged releases"
 [lib-releases]: https://github.com/universal-automata/liblevenshtein-java/releases "Library, tagged releases"
+[gitter-badge]: https://badges.gitter.im/universal-automata/liblevenshtein-java-cli.svg
+[gitter-channel]: https://gitter.im/universal-automata/liblevenshtein-java-cli?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
