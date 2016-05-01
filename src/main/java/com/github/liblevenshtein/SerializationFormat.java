@@ -10,11 +10,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum SerializationFormat {
 
-  /** Google Protocol Buffers. */
-  PROTOBUF("application/octet-stream"),
+  // [WARNING] :: The ordering of these formats is intentional.  Rearranging
+  // them will likely make the adaptive deserialization algorithm fail on
+  // certain inputs.
+  // -------------------------------------------------------------------------
 
   /** Java bytecode. */
   BYTECODE("application/octet-stream"),
+
+  /** Google Protocol Buffers. */
+  PROTOBUF("application/octet-stream"),
 
   // [WARNING] :: PLAIN_TEXT should come last as its Serializer will attempt
   // to deserialize any file as plain text ...
