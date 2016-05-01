@@ -12,6 +12,7 @@
 !/build.gradle
 !/config/**/*.xml
 !/config/**/*.xsl
+!/gradle.properties
 !/gradle/wrapper/gradle-wrapper.jar
 !/gradle/wrapper/gradle-wrapper.properties
 !/gradlew
