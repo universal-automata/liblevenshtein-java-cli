@@ -192,6 +192,10 @@ public class CommandLineInterface extends Action {
       log.warn("Cannot read from <STDIN>");
     }
 
+    if (null == path) {
+      throw new IllegalArgumentException("No dictionary specified");
+    }
+
     try {
       final URI uri = RE_PROTO.matcher(path).matches()
         ? new URI(path)
@@ -339,7 +343,6 @@ public class CommandLineInterface extends Action {
         .argName("PATH|URI")
         .desc("Filesystem path or Java-compatible URI to a dictionary of terms")
         .hasArg()
-        .required()
         .build());
     options.addOption(
       Option.builder("s")
