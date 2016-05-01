@@ -1,5 +1,8 @@
 # [liblevenshtein-java-cli][java-cli]
 
+[![License][license-badge]][license]
+[![Build Status][build-status-badge]][travis-ci]
+[![Dependency Status][dependency-status-badge]][versioneye]
 [![Gitter][gitter-badge]][gitter-channel]
 
 Command-line interface to [liblevenshein-java][java-lib].
@@ -215,12 +218,19 @@ Java-compatible URIs (including web URLs and [Jar resources][jar-resource-uri]),
 [process substitutions][proc-sub] in Unix shells, and standard input
 (e.g. [piped input][shell-piping]).
 
-[proc-sub]: http://tldp.org/LDP/abs/html/process-sub.html "Chapter 23. Process Substitution"
-[shell-piping]: http://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO-4.html "4. Pipes"
+[cli-releases]: https://github.com/universal-automata/liblevenshtein-java-cli/releases "Command-line interface, tagged releases"
+[gitter-badge]: https://badges.gitter.im/universal-automata/liblevenshtein-java-cli.svg
+[gitter-channel]: https://gitter.im/universal-automata/liblevenshtein-java-cli?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
 [jar-resource-uri]: http://stackoverflow.com/a/2049705/206543 "Get a File or URI object for a file inside an archive with Java?"
 [java-cli]: https://github.com/universal-automata/liblevenshtein-java-cli "liblevenshtein-java-cli"
 [java-lib]: https://github.com/universal-automata/liblevenshtein-java "liblevenshtein-java"
-[cli-releases]: https://github.com/universal-automata/liblevenshtein-java-cli/releases "Command-line interface, tagged releases"
 [lib-releases]: https://github.com/universal-automata/liblevenshtein-java/releases "Library, tagged releases"
-[gitter-badge]: https://badges.gitter.im/universal-automata/liblevenshtein-java-cli.svg
-[gitter-channel]: https://gitter.im/universal-automata/liblevenshtein-java-cli?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+[license-badge]: https://img.shields.io/github/license/universal-automata/liblevenshtein-java-cli.svg
+[license]: https://raw.githubusercontent.com/universal-automata/liblevenshtein-java-cli/master/LICENSE
+[proc-sub]: http://tldp.org/LDP/abs/html/process-sub.html "Chapter 23. Process Substitution"
+[shell-piping]: http://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO-4.html "4. Pipes"
+
+[build-status-badge]: https://travis-ci.org/universal-automata/liblevenshtein-java-cli.svg?branch=master
+[travis-ci]: https://travis-ci.org/universal-automata/liblevenshtein-java-cli
+[dependency-status-badge]: https://www.versioneye.com/user/projects/57254fc9ba37ce00464e0802/badge.svg
+[versioneye]: https://www.versioneye.com/user/projects/57254fc9ba37ce00464e0802
