@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.github.liblevenshtein.assertion.ProcessAssertions;
 import static com.github.liblevenshtein.assertion.ProcessAssertions.assertThat;
 
 @Slf4j
@@ -418,7 +417,6 @@ public class CommandLineInterfaceIntegTest {
     final Path conversionPath = tmp("dictionary-", "." + conversionFormat);
 
     try {
-      ProcessAssertions assertions;
 
       // Pull the dictionary from the Jar
       assertThat(exec(
@@ -434,69 +432,47 @@ public class CommandLineInterfaceIntegTest {
         .succeeded();
 
       // Convert the dictionary to some other format
-      assertions =
-        assertThat(
-          exec(
-            isSorted,
-            includeDistance,
-            colorize,
-            "--dictionary", dictionaryPath,
-            "--source-format", dictionaryFormat,
-            "--serialize", conversionPath,
-            "--target-format", conversionFormat));
-
-      if (isSorted && "PLAIN_TEXT".equals(dictionaryFormat)) {
-        assertions.failed();
-        return; // the dictionary was not converted, so don't proceed
-      }
-      else {
-        assertions.succeeded();
-      }
+      assertThat(
+        exec(
+          isSorted,
+          includeDistance,
+          colorize,
+          "--dictionary", dictionaryPath,
+          "--source-format", dictionaryFormat,
+          "--serialize", conversionPath,
+          "--target-format", conversionFormat))
+        .succeeded();
 
       // Test formatted parsing
 
-      assertions =
-        assertThat(
-          exec(
-            isSorted,
-            includeDistance,
-            colorize,
-            "--dictionary", conversionPath,
-            "--source-format", conversionFormat,
-            "--algorithm", algorithm,
-            "--query", QUERY_TERM_1, QUERY_TERM_2));
-
-      if (isSorted && "PLAIN_TEXT".equals(conversionFormat)) {
-        assertions.failed();
-      }
-      else {
-        assertions.succeeded()
-          .printed(output)
-            .stripping(RE_COLOR)
-            .toStandardOutput();
-      }
+      assertThat(
+        exec(
+          isSorted,
+          includeDistance,
+          colorize,
+          "--dictionary", conversionPath,
+          "--source-format", conversionFormat,
+          "--algorithm", algorithm,
+          "--query", QUERY_TERM_1, QUERY_TERM_2))
+        .succeeded()
+        .printed(output)
+          .stripping(RE_COLOR)
+          .toStandardOutput();
 
       // Test adaptive parsing
 
-      assertions =
-        assertThat(
-          exec(
-            isSorted,
-            includeDistance,
-            colorize,
-            "--dictionary", conversionPath,
-            "--algorithm", algorithm,
-            "--query", QUERY_TERM_1, QUERY_TERM_2));
-
-      if (isSorted && "PLAIN_TEXT".equals(conversionFormat)) {
-        assertions.failed();
-      }
-      else {
-        assertions.succeeded()
-          .printed(output)
-            .stripping(RE_COLOR)
-            .toStandardOutput();
-      }
+      assertThat(
+        exec(
+          isSorted,
+          includeDistance,
+          colorize,
+          "--dictionary", conversionPath,
+          "--algorithm", algorithm,
+          "--query", QUERY_TERM_1, QUERY_TERM_2))
+        .succeeded()
+        .printed(output)
+          .stripping(RE_COLOR)
+          .toStandardOutput();
     }
     finally {
       Files.delete(conversionPath);
