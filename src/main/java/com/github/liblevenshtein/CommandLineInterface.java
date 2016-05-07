@@ -56,12 +56,6 @@ public class CommandLineInterface extends Action {
   private static final int DEFAULT_MAX_DISTANCE = 2;
 
   /**
-   * Default, indicator whether to include the number of errors with the
-   * spelling candidates.
-   */
-  private static final boolean DEFAULT_INCLUDE_DISTANCE = true;
-
-  /**
    * Default format for serializing dictionaries.
    */
   private static final SerializationFormat DEFAULT_FORMAT =
@@ -71,11 +65,6 @@ public class CommandLineInterface extends Action {
    * Joins elements with commas.
    */
   private static final Joiner COMMAS = Joiner.on(", ");
-
-  /**
-   * Joins elements with pipes.
-   */
-  private static final Joiner PIPES = Joiner.on("|");
 
   /**
    * Joins elements with newlines.
@@ -529,6 +518,67 @@ public class CommandLineInterface extends Action {
   }
 
   /**
+   * Generates spelling candidates.
+   * @param dictionary Spelling candidates to query.
+   * @return Transducer of query terms to spelling candidates.
+   */
+  private ITransducer<Object> buildTransducer(final SortedDawg dictionary) {
+    return new TransducerBuilder()
+      .algorithm(algorithm())
+      .defaultMaxDistance(maxDistance())
+      .includeDistance(includeDistance())
+      .dictionary(dictionary, true)
+      .build();
+  }
+
+  /**
+   * Prints headers.
+   * @return Printer for headers.
+   */
+  private BiConsumer<StringBuilder, String> buildHeaderPrinter() {
+    return colorize()
+      ? new HeaderColorPrinter()
+      : new HeaderPrinter();
+  }
+
+  /**
+   * Prints spelling candidates.
+   * @return Printer for spelling candidates.
+   */
+  private Printer buildCandidatePrinter() {
+    return includeDistance()
+      ? colorize()
+        ? new CandidateColorPrinter()
+        : new CandidatePrinter()
+      : colorize()
+        ? new StringColorPrinter()
+        : new StringPrinter();
+  }
+
+  /**
+   * Prints the results of querying the dictionary.
+   * @param dictionary Spelling candidates to query.
+   * @param queryTerms Query terms for the dictionary.
+   */
+  private void printResults(
+      final SortedDawg dictionary,
+      final List<String> queryTerms) {
+    final ITransducer<Object> transducer = buildTransducer(dictionary);
+    final Printer printer = buildCandidatePrinter();
+    final BiConsumer<StringBuilder, String> header = buildHeaderPrinter();
+
+    final StringBuilder buffer = new StringBuilder(1024);
+
+    for (final String queryTerm : queryTerms) {
+      final String escapedQuery = StringEscapeUtils.escapeJava(queryTerm);
+      header.accept(buffer, escapedQuery);
+      for (final Object object : transducer.transduce(queryTerm)) {
+        printer.print(buffer, escapedQuery, object);
+      }
+    }
+  }
+
+  /**
    * Queries a dictionary to find all spelling candidates for a sequence of
    * query terms, according to the parameters specified on the command-line.
    */
@@ -538,35 +588,7 @@ public class CommandLineInterface extends Action {
     final List<String> queryTerms = queryTerms();
 
     if (!queryTerms.isEmpty()) {
-      final ITransducer<Object> transducer =
-        new TransducerBuilder()
-          .algorithm(algorithm())
-          .defaultMaxDistance(maxDistance())
-          .includeDistance(includeDistance())
-          .dictionary(dictionary, true)
-          .build();
-
-      final Printer printer = includeDistance()
-        ? colorize()
-          ? new CandidateColorPrinter()
-          : new CandidatePrinter()
-        : colorize()
-          ? new StringColorPrinter()
-          : new StringPrinter();
-
-      final BiConsumer<StringBuilder, String> header = colorize()
-        ? new HeaderColorPrinter()
-        : new HeaderPrinter();
-
-      final StringBuilder buffer = new StringBuilder(1024);
-
-      for (final String queryTerm : queryTerms) {
-        final String escapedQuery = StringEscapeUtils.escapeJava(queryTerm);
-        header.accept(buffer, escapedQuery);
-        for (final Object object : transducer.transduce(queryTerm)) {
-          printer.print(buffer, escapedQuery, object);
-        }
-      }
+      printResults(dictionary, queryTerms);
     }
 
     if (null != serializationPath()) {

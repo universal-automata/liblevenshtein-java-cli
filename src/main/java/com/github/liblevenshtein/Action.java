@@ -42,6 +42,19 @@ public abstract class Action implements Runnable {
   public static final int EXIT_UNHANDLED_ERROR = 2;
 
   /**
+   * Command-line parameters of this action.
+   */
+  protected final CommandLine cli;
+
+  /**
+   * Constructs a new action with the command-line args.
+   * @param args Command-line arguments for this action.
+   */
+  protected Action(final String[] args) {
+    this.cli = parseCLI(args);
+  }
+
+  /**
    * Returns the name of this action.
    * @return Name of this action.
    */
@@ -58,19 +71,6 @@ public abstract class Action implements Runnable {
    * @return Footer for the help text.
    */
   protected abstract String helpFooter();
-
-  /**
-   * Command-line parameters of this action.
-   */
-  protected final CommandLine cli;
-
-  /**
-   * Constructs a new action with the command-line args.
-   * @param args Command-line arguments for this action.
-   */
-  protected Action(final String[] args) {
-    this.cli = parseCLI(args);
-  }
 
   /**
    * Business logic of the action.

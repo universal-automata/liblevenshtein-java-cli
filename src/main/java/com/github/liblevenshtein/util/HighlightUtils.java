@@ -5,13 +5,6 @@ package com.github.liblevenshtein.util;
  */
 public class HighlightUtils {
 
-  /**
-   * Default constructor for inheritance.
-   */
-  protected HighlightUtils() {
-    // Empty Constructor
-  }
-
   /** Unformatted text. */
   public static final int NORMAL = 0;
 
@@ -68,6 +61,13 @@ public class HighlightUtils {
 
   /** White text color. */
   public static final int WHITE = 7;
+
+  /**
+   * Default constructor for inheritance.
+   */
+  protected HighlightUtils() {
+    // Empty Constructor
+  }
 
   /**
    * Sets the text formatting mode. The mode may be one of the following:
