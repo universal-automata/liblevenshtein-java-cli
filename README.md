@@ -4,7 +4,6 @@
 [![Build Status][build-status-badge]][travis-ci]
 [![Dependency Status][dependency-status-badge]][versioneye]
 [![Gitter][gitter-badge]][gitter-channel]
-[![Codacy Badge][codacy-badge]][codacy-link]
 
 Command-line interface to [liblevenshein-java][java-lib].
 [Tagged releases][cli-releases] of [liblevenshtein-java-cli][java-cli] follow
@@ -235,6 +234,3 @@ Java-compatible URIs (including web URLs and [Jar resources][jar-resource-uri]),
 [travis-ci]: https://travis-ci.org/universal-automata/liblevenshtein-java-cli
 [dependency-status-badge]: https://www.versioneye.com/user/projects/57254fc9ba37ce00464e0802/badge.svg
 [versioneye]: https://www.versioneye.com/user/projects/57254fc9ba37ce00464e0802
-
-[codacy-badge]: https://api.codacy.com/project/badge/Grade/42aeec315a464835b05bbd50993f8c84
-[codacy-link]: https://www.codacy.com/app/dylon-devo-github/liblevenshtein-java-cli?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=universal-automata/liblevenshtein-java-cli&amp;utm_campaign=Badge_Grade
