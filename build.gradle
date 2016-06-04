@@ -101,14 +101,12 @@ ext {
 
 dependencies {
   compile "com.github.universal-automata:liblevenshtein:$version"
-  compile 'com.google.code.findbugs:annotations:latest.release'
-  compile 'com.google.guava:guava:latest.release'
-  compile 'com.google.protobuf:protobuf-java-util:latest.release'
-  compile 'com.google.protobuf:protobuf-java:latest.release'
+  compile 'com.google.code.findbugs:annotations:3.+'
+  compile 'com.google.guava:guava:19.+'
   compile 'commons-cli:commons-cli:latest.release'
-  compile 'org.apache.commons:commons-lang3:latest.release'
-  compile 'org.projectlombok:lombok:latest.release'
-  compile 'org.slf4j:slf4j-api:latest.release'
+  compile 'org.apache.commons:commons-lang3:3.+'
+  compile 'org.projectlombok:lombok:1.+'
+  compile 'org.slf4j:slf4j-api:1.+'
 
   runtime 'ch.qos.logback:logback-classic:latest.release'
   runtime 'org.codehaus.groovy:groovy-all:latest.release'
@@ -118,7 +116,7 @@ dependencies {
   runtime 'org.slf4j:osgi-over-slf4j:latest.release'
 
   testCompile 'org.assertj:assertj-core:latest.release'
-  testCompile 'org.mockito:mockito-all:latest.release'
+  testCompile 'org.mockito:mockito-all:1.+'
   testCompile 'org.projectlombok:lombok:latest.release'
   testCompile 'org.testng:testng:latest.release'
 
