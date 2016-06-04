@@ -1,5 +1,7 @@
 package com.github.liblevenshtein;
 
+import com.google.common.net.MediaType;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -16,17 +18,17 @@ public enum SerializationFormat {
   // -------------------------------------------------------------------------
 
   /** Java bytecode. */
-  BYTECODE("application/octet-stream"),
+  BYTECODE(MediaType.OCTET_STREAM.toString()),
 
   /** Google Protocol Buffers. */
-  PROTOBUF("application/octet-stream"),
+  PROTOBUF(MediaType.OCTET_STREAM.toString()),
 
   // [WARNING] :: PLAIN_TEXT should come last as its Serializer will attempt
   // to deserialize any file as plain text ...
   // -------------------------------------------------------------------------
 
   /** Plain text dictionary (newline-delimited terms). */
-  PLAIN_TEXT("text/plain");
+  PLAIN_TEXT(MediaType.PLAIN_TEXT_UTF_8.withoutParameters().toString());
 
   /**
    * Expected content-type of the serialization format.  The content type does

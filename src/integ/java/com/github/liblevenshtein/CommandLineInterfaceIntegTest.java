@@ -11,292 +11,302 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Joiner;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import lombok.extern.slf4j.Slf4j;
 
 import static com.github.liblevenshtein.assertion.ProcessAssertions.assertThat;
 
 @Slf4j
+@SuppressWarnings("checkstyle:multiplestringliterals")
 public class CommandLineInterfaceIntegTest {
+
+  private static final Joiner SPACES = Joiner.on(" ");
+
+  private static final Joiner NEWLINES = Joiner.on("\n");
 
   private static final String QUERY_TERM_1 = "fro";
 
   private static final String QUERY_TERM_2 = "eb";
 
-  private static final String STANDARD_OUTPUT_WITH_DISTANCES =
-    "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"fro\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| d(\"fro\", \"do\") = [2]\n"
-  + "| d(\"fro\", \"to\") = [2]\n"
-  + "| d(\"fro\", \"for\") = [2]\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"eb\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| d(\"eb\", \"I\") = [2]\n"
-  + "| d(\"eb\", \"a\") = [2]\n"
-  + "| d(\"eb\", \"as\") = [2]\n"
-  + "| d(\"eb\", \"at\") = [2]\n"
-  + "| d(\"eb\", \"be\") = [2]\n"
-  + "| d(\"eb\", \"do\") = [2]\n"
-  + "| d(\"eb\", \"he\") = [2]\n"
-  + "| d(\"eb\", \"in\") = [2]\n"
-  + "| d(\"eb\", \"it\") = [2]\n"
-  + "| d(\"eb\", \"of\") = [2]\n"
-  + "| d(\"eb\", \"on\") = [2]\n"
-  + "| d(\"eb\", \"to\") = [2]\n";
+  private static final String STANDARD_OUTPUT_WITH_DISTANCES = NEWLINES.join(
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"fro\"",
+    "+-------------------------------------------------------------------------------",
+    "| d(\"fro\", \"do\") = [2]",
+    "| d(\"fro\", \"to\") = [2]",
+    "| d(\"fro\", \"for\") = [2]",
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"eb\"",
+    "+-------------------------------------------------------------------------------",
+    "| d(\"eb\", \"I\") = [2]",
+    "| d(\"eb\", \"a\") = [2]",
+    "| d(\"eb\", \"as\") = [2]",
+    "| d(\"eb\", \"at\") = [2]",
+    "| d(\"eb\", \"be\") = [2]",
+    "| d(\"eb\", \"do\") = [2]",
+    "| d(\"eb\", \"he\") = [2]",
+    "| d(\"eb\", \"in\") = [2]",
+    "| d(\"eb\", \"it\") = [2]",
+    "| d(\"eb\", \"of\") = [2]",
+    "| d(\"eb\", \"on\") = [2]",
+    "| d(\"eb\", \"to\") = [2]",
+    "");
 
-  private static final String STANDARD_OUTPUT_WITHOUT_DISTANCES =
-    "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"fro\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| \"fro\" ~ \"do\"\n"
-  + "| \"fro\" ~ \"to\"\n"
-  + "| \"fro\" ~ \"for\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"eb\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| \"eb\" ~ \"I\"\n"
-  + "| \"eb\" ~ \"a\"\n"
-  + "| \"eb\" ~ \"as\"\n"
-  + "| \"eb\" ~ \"at\"\n"
-  + "| \"eb\" ~ \"be\"\n"
-  + "| \"eb\" ~ \"do\"\n"
-  + "| \"eb\" ~ \"he\"\n"
-  + "| \"eb\" ~ \"in\"\n"
-  + "| \"eb\" ~ \"it\"\n"
-  + "| \"eb\" ~ \"of\"\n"
-  + "| \"eb\" ~ \"on\"\n"
-  + "| \"eb\" ~ \"to\"\n";
+  private static final String STANDARD_OUTPUT_WITHOUT_DISTANCES = NEWLINES.join(
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"fro\"",
+    "+-------------------------------------------------------------------------------",
+    "| \"fro\" ~ \"do\"",
+    "| \"fro\" ~ \"to\"",
+    "| \"fro\" ~ \"for\"",
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"eb\"",
+    "+-------------------------------------------------------------------------------",
+    "| \"eb\" ~ \"I\"",
+    "| \"eb\" ~ \"a\"",
+    "| \"eb\" ~ \"as\"",
+    "| \"eb\" ~ \"at\"",
+    "| \"eb\" ~ \"be\"",
+    "| \"eb\" ~ \"do\"",
+    "| \"eb\" ~ \"he\"",
+    "| \"eb\" ~ \"in\"",
+    "| \"eb\" ~ \"it\"",
+    "| \"eb\" ~ \"of\"",
+    "| \"eb\" ~ \"on\"",
+    "| \"eb\" ~ \"to\"",
+    "");
 
-  private static final String TRANSPOSITION_OUTPUT_WITH_DISTANCES =
-    "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"fro\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| d(\"fro\", \"do\") = [2]\n"
-  + "| d(\"fro\", \"to\") = [2]\n"
-  + "| d(\"fro\", \"for\") = [1]\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"eb\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| d(\"eb\", \"I\") = [2]\n"
-  + "| d(\"eb\", \"a\") = [2]\n"
-  + "| d(\"eb\", \"as\") = [2]\n"
-  + "| d(\"eb\", \"at\") = [2]\n"
-  + "| d(\"eb\", \"be\") = [1]\n"
-  + "| d(\"eb\", \"do\") = [2]\n"
-  + "| d(\"eb\", \"he\") = [2]\n"
-  + "| d(\"eb\", \"in\") = [2]\n"
-  + "| d(\"eb\", \"it\") = [2]\n"
-  + "| d(\"eb\", \"of\") = [2]\n"
-  + "| d(\"eb\", \"on\") = [2]\n"
-  + "| d(\"eb\", \"to\") = [2]\n";
+  private static final String TRANSPOSITION_OUTPUT_WITH_DISTANCES = NEWLINES.join(
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"fro\"",
+    "+-------------------------------------------------------------------------------",
+    "| d(\"fro\", \"do\") = [2]",
+    "| d(\"fro\", \"to\") = [2]",
+    "| d(\"fro\", \"for\") = [1]",
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"eb\"",
+    "+-------------------------------------------------------------------------------",
+    "| d(\"eb\", \"I\") = [2]",
+    "| d(\"eb\", \"a\") = [2]",
+    "| d(\"eb\", \"as\") = [2]",
+    "| d(\"eb\", \"at\") = [2]",
+    "| d(\"eb\", \"be\") = [1]",
+    "| d(\"eb\", \"do\") = [2]",
+    "| d(\"eb\", \"he\") = [2]",
+    "| d(\"eb\", \"in\") = [2]",
+    "| d(\"eb\", \"it\") = [2]",
+    "| d(\"eb\", \"of\") = [2]",
+    "| d(\"eb\", \"on\") = [2]",
+    "| d(\"eb\", \"to\") = [2]",
+    "");
 
-  private static final String TRANSPOSITION_OUTPUT_WITHOUT_DISTANCES =
-    "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"fro\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| \"fro\" ~ \"do\"\n"
-  + "| \"fro\" ~ \"to\"\n"
-  + "| \"fro\" ~ \"for\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"eb\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| \"eb\" ~ \"I\"\n"
-  + "| \"eb\" ~ \"a\"\n"
-  + "| \"eb\" ~ \"as\"\n"
-  + "| \"eb\" ~ \"at\"\n"
-  + "| \"eb\" ~ \"be\"\n"
-  + "| \"eb\" ~ \"do\"\n"
-  + "| \"eb\" ~ \"he\"\n"
-  + "| \"eb\" ~ \"in\"\n"
-  + "| \"eb\" ~ \"it\"\n"
-  + "| \"eb\" ~ \"of\"\n"
-  + "| \"eb\" ~ \"on\"\n"
-  + "| \"eb\" ~ \"to\"\n";
+  private static final String TRANSPOSITION_OUTPUT_WITHOUT_DISTANCES = NEWLINES.join(
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"fro\"",
+    "+-------------------------------------------------------------------------------",
+    "| \"fro\" ~ \"do\"",
+    "| \"fro\" ~ \"to\"",
+    "| \"fro\" ~ \"for\"",
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"eb\"",
+    "+-------------------------------------------------------------------------------",
+    "| \"eb\" ~ \"I\"",
+    "| \"eb\" ~ \"a\"",
+    "| \"eb\" ~ \"as\"",
+    "| \"eb\" ~ \"at\"",
+    "| \"eb\" ~ \"be\"",
+    "| \"eb\" ~ \"do\"",
+    "| \"eb\" ~ \"he\"",
+    "| \"eb\" ~ \"in\"",
+    "| \"eb\" ~ \"it\"",
+    "| \"eb\" ~ \"of\"",
+    "| \"eb\" ~ \"on\"",
+    "| \"eb\" ~ \"to\"",
+    "");
 
-  private static final String MERGE_AND_SPLIT_OUTPUT_WITH_DISTANCES =
-    "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"fro\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| d(\"fro\", \"I\") = [2]\n"
-  + "| d(\"fro\", \"a\") = [2]\n"
-  + "| d(\"fro\", \"as\") = [2]\n"
-  + "| d(\"fro\", \"at\") = [2]\n"
-  + "| d(\"fro\", \"be\") = [2]\n"
-  + "| d(\"fro\", \"do\") = [1]\n"
-  + "| d(\"fro\", \"he\") = [2]\n"
-  + "| d(\"fro\", \"in\") = [2]\n"
-  + "| d(\"fro\", \"it\") = [2]\n"
-  + "| d(\"fro\", \"of\") = [2]\n"
-  + "| d(\"fro\", \"on\") = [2]\n"
-  + "| d(\"fro\", \"to\") = [1]\n"
-  + "| d(\"fro\", \"and\") = [2]\n"
-  + "| d(\"fro\", \"for\") = [2]\n"
-  + "| d(\"fro\", \"not\") = [2]\n"
-  + "| d(\"fro\", \"the\") = [2]\n"
-  + "| d(\"fro\", \"you\") = [2]\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"eb\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| d(\"eb\", \"I\") = [1]\n"
-  + "| d(\"eb\", \"a\") = [1]\n"
-  + "| d(\"eb\", \"as\") = [2]\n"
-  + "| d(\"eb\", \"at\") = [2]\n"
-  + "| d(\"eb\", \"be\") = [2]\n"
-  + "| d(\"eb\", \"do\") = [2]\n"
-  + "| d(\"eb\", \"he\") = [2]\n"
-  + "| d(\"eb\", \"in\") = [2]\n"
-  + "| d(\"eb\", \"it\") = [2]\n"
-  + "| d(\"eb\", \"of\") = [2]\n"
-  + "| d(\"eb\", \"on\") = [2]\n"
-  + "| d(\"eb\", \"to\") = [2]\n"
-  + "| d(\"eb\", \"and\") = [2]\n"
-  + "| d(\"eb\", \"for\") = [2]\n"
-  + "| d(\"eb\", \"not\") = [2]\n"
-  + "| d(\"eb\", \"the\") = [2]\n"
-  + "| d(\"eb\", \"you\") = [2]\n"
-  + "| d(\"eb\", \"have\") = [2]\n"
-  + "| d(\"eb\", \"that\") = [2]\n"
-  + "| d(\"eb\", \"with\") = [2]\n";
+  private static final String MERGE_AND_SPLIT_OUTPUT_WITH_DISTANCES = NEWLINES.join(
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"fro\"",
+    "+-------------------------------------------------------------------------------",
+    "| d(\"fro\", \"I\") = [2]",
+    "| d(\"fro\", \"a\") = [2]",
+    "| d(\"fro\", \"as\") = [2]",
+    "| d(\"fro\", \"at\") = [2]",
+    "| d(\"fro\", \"be\") = [2]",
+    "| d(\"fro\", \"do\") = [1]",
+    "| d(\"fro\", \"he\") = [2]",
+    "| d(\"fro\", \"in\") = [2]",
+    "| d(\"fro\", \"it\") = [2]",
+    "| d(\"fro\", \"of\") = [2]",
+    "| d(\"fro\", \"on\") = [2]",
+    "| d(\"fro\", \"to\") = [1]",
+    "| d(\"fro\", \"and\") = [2]",
+    "| d(\"fro\", \"for\") = [2]",
+    "| d(\"fro\", \"not\") = [2]",
+    "| d(\"fro\", \"the\") = [2]",
+    "| d(\"fro\", \"you\") = [2]",
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"eb\"",
+    "+-------------------------------------------------------------------------------",
+    "| d(\"eb\", \"I\") = [1]",
+    "| d(\"eb\", \"a\") = [1]",
+    "| d(\"eb\", \"as\") = [2]",
+    "| d(\"eb\", \"at\") = [2]",
+    "| d(\"eb\", \"be\") = [2]",
+    "| d(\"eb\", \"do\") = [2]",
+    "| d(\"eb\", \"he\") = [2]",
+    "| d(\"eb\", \"in\") = [2]",
+    "| d(\"eb\", \"it\") = [2]",
+    "| d(\"eb\", \"of\") = [2]",
+    "| d(\"eb\", \"on\") = [2]",
+    "| d(\"eb\", \"to\") = [2]",
+    "| d(\"eb\", \"and\") = [2]",
+    "| d(\"eb\", \"for\") = [2]",
+    "| d(\"eb\", \"not\") = [2]",
+    "| d(\"eb\", \"the\") = [2]",
+    "| d(\"eb\", \"you\") = [2]",
+    "| d(\"eb\", \"have\") = [2]",
+    "| d(\"eb\", \"that\") = [2]",
+    "| d(\"eb\", \"with\") = [2]",
+    "");
 
-  private static final String MERGE_AND_SPLIT_OUTPUT_WITHOUT_DISTANCES =
-    "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"fro\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| \"fro\" ~ \"I\"\n"
-  + "| \"fro\" ~ \"a\"\n"
-  + "| \"fro\" ~ \"as\"\n"
-  + "| \"fro\" ~ \"at\"\n"
-  + "| \"fro\" ~ \"be\"\n"
-  + "| \"fro\" ~ \"do\"\n"
-  + "| \"fro\" ~ \"he\"\n"
-  + "| \"fro\" ~ \"in\"\n"
-  + "| \"fro\" ~ \"it\"\n"
-  + "| \"fro\" ~ \"of\"\n"
-  + "| \"fro\" ~ \"on\"\n"
-  + "| \"fro\" ~ \"to\"\n"
-  + "| \"fro\" ~ \"and\"\n"
-  + "| \"fro\" ~ \"for\"\n"
-  + "| \"fro\" ~ \"not\"\n"
-  + "| \"fro\" ~ \"the\"\n"
-  + "| \"fro\" ~ \"you\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| Spelling Candidates for Query Term: \"eb\"\n"
-  + "+-------------------------------------------------------------------------------\n"
-  + "| \"eb\" ~ \"I\"\n"
-  + "| \"eb\" ~ \"a\"\n"
-  + "| \"eb\" ~ \"as\"\n"
-  + "| \"eb\" ~ \"at\"\n"
-  + "| \"eb\" ~ \"be\"\n"
-  + "| \"eb\" ~ \"do\"\n"
-  + "| \"eb\" ~ \"he\"\n"
-  + "| \"eb\" ~ \"in\"\n"
-  + "| \"eb\" ~ \"it\"\n"
-  + "| \"eb\" ~ \"of\"\n"
-  + "| \"eb\" ~ \"on\"\n"
-  + "| \"eb\" ~ \"to\"\n"
-  + "| \"eb\" ~ \"and\"\n"
-  + "| \"eb\" ~ \"for\"\n"
-  + "| \"eb\" ~ \"not\"\n"
-  + "| \"eb\" ~ \"the\"\n"
-  + "| \"eb\" ~ \"you\"\n"
-  + "| \"eb\" ~ \"have\"\n"
-  + "| \"eb\" ~ \"that\"\n"
-  + "| \"eb\" ~ \"with\"\n";
+  private static final String MERGE_AND_SPLIT_OUTPUT_WITHOUT_DISTANCES = NEWLINES.join(
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"fro\"",
+    "+-------------------------------------------------------------------------------",
+    "| \"fro\" ~ \"I\"",
+    "| \"fro\" ~ \"a\"",
+    "| \"fro\" ~ \"as\"",
+    "| \"fro\" ~ \"at\"",
+    "| \"fro\" ~ \"be\"",
+    "| \"fro\" ~ \"do\"",
+    "| \"fro\" ~ \"he\"",
+    "| \"fro\" ~ \"in\"",
+    "| \"fro\" ~ \"it\"",
+    "| \"fro\" ~ \"of\"",
+    "| \"fro\" ~ \"on\"",
+    "| \"fro\" ~ \"to\"",
+    "| \"fro\" ~ \"and\"",
+    "| \"fro\" ~ \"for\"",
+    "| \"fro\" ~ \"not\"",
+    "| \"fro\" ~ \"the\"",
+    "| \"fro\" ~ \"you\"",
+    "+-------------------------------------------------------------------------------",
+    "| Spelling Candidates for Query Term: \"eb\"",
+    "+-------------------------------------------------------------------------------",
+    "| \"eb\" ~ \"I\"",
+    "| \"eb\" ~ \"a\"",
+    "| \"eb\" ~ \"as\"",
+    "| \"eb\" ~ \"at\"",
+    "| \"eb\" ~ \"be\"",
+    "| \"eb\" ~ \"do\"",
+    "| \"eb\" ~ \"he\"",
+    "| \"eb\" ~ \"in\"",
+    "| \"eb\" ~ \"it\"",
+    "| \"eb\" ~ \"of\"",
+    "| \"eb\" ~ \"on\"",
+    "| \"eb\" ~ \"to\"",
+    "| \"eb\" ~ \"and\"",
+    "| \"eb\" ~ \"for\"",
+    "| \"eb\" ~ \"not\"",
+    "| \"eb\" ~ \"the\"",
+    "| \"eb\" ~ \"you\"",
+    "| \"eb\" ~ \"have\"",
+    "| \"eb\" ~ \"that\"",
+    "| \"eb\" ~ \"with\"",
+    "");
 
-  private static final String HELP_TEXT =
-    "usage: liblevenshtein-java-cli [-a <ALGORITHM>] [--colorize] [-d\n"
-  + "       <PATH|URI>] [-h] [-i] [-m <INTEGER>] [-q <STRING> <...>] [-s]\n"
-  + "       [--serialize <PATH>] [--source-format <FORMAT>] [--target-format\n"
-  + "       <FORMAT>]\n"
-  + "\n"
-  + "Command-Line Interface to liblevenshtein (Java)\n"
-  + "\n"
-  + "<FORMAT> specifies the serialization format of the dictionary,\n"
-  + "and may be one of the following:\n"
-  + "  1. PROTOBUF\n"
-  + "     - (de)serialize the dictionary as a protobuf stream.\n"
-  + "     - This is the preferred format.\n"
-  + "     - See: https://developers.google.com/protocol-buffers/\n"
-  + "  2. BYTECODE\n"
-  + "     - (de)serialize the dictionary as a Java, bytecode stream.\n"
-  + "  3. PLAIN_TEXT\n"
-  + "     - (de)serialize the dictionary as a plain text file.\n"
-  + "     - Terms are delimited by newlines.\n"
-  + "\n"
-  + "<ALGORITHM> specifies the Levenshtein algorithm to use for\n"
-  + "querying-against the dictionary, and may be one of the following:\n"
-  + "  1. STANDARD\n"
-  + "     - Use the standard, Levenshtein distance which considers the\n"
-  + "     following elementary operations:\n"
-  + "       o Insertion\n"
-  + "       o Deletion\n"
-  + "       o Substitution\n"
-  + "     - An elementary operation is an operation that incurs a penalty of\n"
-  + "     one unit.\n"
-  + "  2. TRANSPOSITION\n"
-  + "     - Extend the standard, Levenshtein distance to include transpositions\n"
-  + "     as elementary operations.\n"
-  + "       o A transposition is a swapping of two, consecutive characters as\n"
-  + "       follows: ba -> ab\n"
-  + "       o With the standard distance, this would require at least two\n"
-  + "       operations:\n"
-  + "         + An insertion and a deletion\n"
-  + "         + A deletion and an insertion\n"
-  + "         + Two substitutions\n"
-  + "  3. MERGE_AND_SPLIT\n"
-  + "     - Extend the standard, Levenshtein distance to include merges and\n"
-  + "     splits as elementary operations.\n"
-  + "       o A merge takes two characters and merges them into a single one.\n"
-  + "         + For example: ab -> c\n"
-  + "       o A split takes a single character and splits it into two others\n"
-  + "         + For example: a -> bc\n"
-  + "       o With the standard distance, these would require at least two\n"
-  + "       operations:\n"
-  + "         + Merge:\n"
-  + "           > A deletion and a substitution\n"
-  + "           > A substitution and a deletion\n"
-  + "         + Split:\n"
-  + "           > An insertion and a substitution\n"
-  + "           > A substitution and an insertion\n"
-  + "\n"
-  + " -a,--algorithm <ALGORITHM>    Levenshtein algorithm to use (Default:\n"
-  + "                               TRANSPOSITION)\n"
-  + "    --colorize                 Colorize output\n"
-  + " -d,--dictionary <PATH|URI>    Filesystem path or Java-compatible URI to a\n"
-  + "                               dictionary of terms\n"
-  + " -h,--help                     print this help text\n"
-  + " -i,--include-distance         Include the Levenshtein distance with each\n"
-  + "                               spelling candidate (Default: false)\n"
-  + " -m,--max-distance <INTEGER>   Maximun, Levenshtein distance a spelling\n"
-  + "                               candidatemay be from the query term\n"
-  + "                               (Default: 2)\n"
-  + " -q,--query <STRING> <...>     Terms to query against the dictionary.  You\n"
-  + "                               may specify multiple terms.\n"
-  + " -s,--is-sorted                Specifies that the dictionary is sorted\n"
-  + "                               lexicographically, in ascending order\n"
-  + "                               (Default: false)\n"
-  + "    --serialize <PATH>         Path to save the serialized dictionary\n"
-  + "    --source-format <FORMAT>   Format of the source dictionary (Default:\n"
-  + "                               adaptively-try each format until one works)\n"
-  + "    --target-format <FORMAT>   Format of the serialized dictionary\n"
-  + "                               (Default: PROTOBUF)\n"
-  + "\n"
-  + "Example: liblevenshtein-java-cli \\\n"
-  + "  --algorithm TRANSPOSITION \\\n"
-  + "  --max-distance 2 \\\n"
-  + "  --include-distance \\\n"
-  + "  --query mispelled mispelling \\\n"
-  + "  --colorize\n";
+  private static final String HELP_TEXT = NEWLINES.join(
+    "usage: liblevenshtein-java-cli [-a <ALGORITHM>] [--colorize] [-d",
+    "       <PATH|URI>] [-h] [-i] [-m <INTEGER>] [-q <STRING> <...>] [-s]",
+    "       [--serialize <PATH>] [--source-format <FORMAT>] [--target-format",
+    "       <FORMAT>]",
+    "",
+    "Command-Line Interface to liblevenshtein (Java)",
+    "",
+    "<FORMAT> specifies the serialization format of the dictionary,",
+    "and may be one of the following:",
+    "  1. PROTOBUF",
+    "     - (de)serialize the dictionary as a protobuf stream.",
+    "     - This is the preferred format.",
+    "     - See: https://developers.google.com/protocol-buffers/",
+    "  2. BYTECODE",
+    "     - (de)serialize the dictionary as a Java, bytecode stream.",
+    "  3. PLAIN_TEXT",
+    "     - (de)serialize the dictionary as a plain text file.",
+    "     - Terms are delimited by newlines.",
+    "",
+    "<ALGORITHM> specifies the Levenshtein algorithm to use for",
+    "querying-against the dictionary, and may be one of the following:",
+    "  1. STANDARD",
+    "     - Use the standard, Levenshtein distance which considers the",
+    "     following elementary operations:",
+    "       o Insertion",
+    "       o Deletion",
+    "       o Substitution",
+    "     - An elementary operation is an operation that incurs a penalty of",
+    "     one unit.",
+    "  2. TRANSPOSITION",
+    "     - Extend the standard, Levenshtein distance to include transpositions",
+    "     as elementary operations.",
+    "       o A transposition is a swapping of two, consecutive characters as",
+    "       follows: ba -> ab",
+    "       o With the standard distance, this would require at least two",
+    "       operations:",
+    "         + An insertion and a deletion",
+    "         + A deletion and an insertion",
+    "         + Two substitutions",
+    "  3. MERGE_AND_SPLIT",
+    "     - Extend the standard, Levenshtein distance to include merges and",
+    "     splits as elementary operations.",
+    "       o A merge takes two characters and merges them into a single one.",
+    "         + For example: ab -> c",
+    "       o A split takes a single character and splits it into two others",
+    "         + For example: a -> bc",
+    "       o With the standard distance, these would require at least two",
+    "       operations:",
+    "         + Merge:",
+    "           > A deletion and a substitution",
+    "           > A substitution and a deletion",
+    "         + Split:",
+    "           > An insertion and a substitution",
+    "           > A substitution and an insertion",
+    "",
+    " -a,--algorithm <ALGORITHM>    Levenshtein algorithm to use (Default:",
+    "                               TRANSPOSITION)",
+    "    --colorize                 Colorize output",
+    " -d,--dictionary <PATH|URI>    Filesystem path or Java-compatible URI to a",
+    "                               dictionary of terms",
+    " -h,--help                     print this help text",
+    " -i,--include-distance         Include the Levenshtein distance with each",
+    "                               spelling candidate (Default: false)",
+    " -m,--max-distance <INTEGER>   Maximun, Levenshtein distance a spelling",
+    "                               candidatemay be from the query term",
+    "                               (Default: 2)",
+    " -q,--query <STRING> <...>     Terms to query against the dictionary.  You",
+    "                               may specify multiple terms.",
+    " -s,--is-sorted                Specifies that the dictionary is sorted",
+    "                               lexicographically, in ascending order",
+    "                               (Default: false)",
+    "    --serialize <PATH>         Path to save the serialized dictionary",
+    "    --source-format <FORMAT>   Format of the source dictionary (Default:",
+    "                               adaptively-try each format until one works)",
+    "    --target-format <FORMAT>   Format of the serialized dictionary",
+    "                               (Default: PROTOBUF)",
+    "",
+    "Example: liblevenshtein-java-cli \\",
+    "  --algorithm TRANSPOSITION \\",
+    "  --max-distance 2 \\",
+    "  --include-distance \\",
+    "  --query mispelled mispelling \\",
+    "  --colorize",
+    "");
 
   /** Strips syntax coloring from output. */
   private static final Pattern RE_COLOR =
     Pattern.compile("\\e\\[(?:\\d+(?:;\\d+)*)?m");
-
-  private static final Joiner SPACES = Joiner.on(" ");
 
   @Test
   public void testHelp() throws IOException, InterruptedException {
@@ -326,7 +336,7 @@ public class CommandLineInterfaceIntegTest {
         .toStandardOutput();
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "checkstyle:illegalcatch"})
   @DataProvider(name = "sourceToTargetProvider")
   public Object[][] sourceToTargetProvider() {
     try {
@@ -410,8 +420,6 @@ public class CommandLineInterfaceIntegTest {
       final String dictionaryFormat,
       final String conversionFormat)
       throws IOException, InterruptedException {
-
-      // add option for sorted
 
     final Path dictionaryPath = tmp("dictionary-", "." + dictionaryFormat);
     final Path conversionPath = tmp("dictionary-", "." + conversionFormat);

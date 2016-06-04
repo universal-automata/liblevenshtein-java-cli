@@ -2,7 +2,7 @@ package com.github.liblevenshtein;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import com.github.dylon.liblevenshtein.levenshtein.Candidate;
+import com.github.liblevenshtein.transducer.Candidate;
 
 /**
  * Prints the distance between a query term and spelling candidate, without

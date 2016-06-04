@@ -9,7 +9,7 @@ import com.github.liblevenshtein.util.HighlightUtils;
 /**
  * Prints strings in color.
  */
-@ExtensionMethod({HighlightUtils.class})
+@ExtensionMethod(HighlightUtils.class)
 public abstract class AbstractPrinter
     implements Printer, BiConsumer<StringBuilder, String> {
 
@@ -99,6 +99,7 @@ public abstract class AbstractPrinter
    * @param text String text to highlight.
    * @return buffer, for fluency.
    */
+  @SuppressWarnings("checkstyle:multiplestringliterals")
   protected StringBuilder highlightString(
       final StringBuilder buffer,
       final String text) {

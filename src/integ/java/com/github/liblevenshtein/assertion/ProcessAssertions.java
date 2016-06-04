@@ -13,12 +13,12 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.NonNull;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
+
+import lombok.NonNull;
 
 /**
  * AssertJ-style assertions for {@link Process}.
@@ -106,7 +106,7 @@ public class ProcessAssertions
    * @param exitCode Expected, exit code of the process.
    * @return This {@link ProcessAssertions} for fluency.
    * @throws AssertionError When the process did not exit with the expected
-   * code.
+   *   code.
    */
   public ProcessAssertions exitedWith(final int exitCode) {
     isNotNull();
@@ -158,7 +158,7 @@ public class ProcessAssertions
    * assertions.
    * @param output Printed value to assert-against.
    * @return New {@link ProcessAssertions} having {@link #output} to
-   * assert-against.
+   *   assert-against.
    */
   public ProcessAssertions printed(@NonNull final String output) {
     return new ProcessAssertions(actual, this, output);
@@ -326,7 +326,7 @@ public class ProcessAssertions
    * standard output stream.
    * @return This {@link ProcessAssertions} for fluency.
    * @throws AssertionError Whent the {@link #actual} process did not print the
-   * transformed {@link #output} to its standard output stream.
+   *   transformed {@link #output} to its standard output stream.
    * @throws IOException If the standard output cannot be read.
    */
   public ProcessAssertions toStandardOutput() throws IOException {
@@ -346,7 +346,7 @@ public class ProcessAssertions
    * standard error stream.
    * @return This {@link ProcessAssertions} for fluency.
    * @throws AssertionError Whent the {@link #actual} process did not print the
-   * transformed {@link #output} to its standard error stream.
+   *   transformed {@link #output} to its standard error stream.
    * @throws IOException If the standard error cannot be read.
    */
   public ProcessAssertions toStandardError() throws IOException {
@@ -385,7 +385,7 @@ public class ProcessAssertions
    * only includes lines that are whitelisted, and it transforms included lines
    * according to the rewrite rules.
    * @param stream Standard output or error stream of the {@link #actual}
-   * process.
+   *   process.
    * @return Accepted, rewritten lines of the {@link #stream}.
    * @throws IOException When the content cannot be read from {@link #stream}.
    */

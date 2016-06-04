@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import com.google.common.base.Joiner;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -12,22 +14,27 @@ import static org.mockito.Mockito.when;
 
 import static com.github.liblevenshtein.assertion.ProcessAssertions.assertThat;
 
+@SuppressWarnings("checkstyle:multiplestringliterals")
 public class ProcessAssertionsTest {
 
   private static final int EXIT_SUCCESS = 0;
 
   private static final int EXIT_FAILURE = 1;
 
-  private static final String STDOUT =
-    "foo bar\n"
-  + "baz qux\n"
-  + "foo quo\n"
-  + "IGNORE foo\n";
+  private static final Joiner NEWLINES = Joiner.on("\n");
 
-  private static final String STDERR =
-    "ERROR: Did not expect baz.\n"
-  + "ERROR: Did not expect quo.\n"
-  + "IGNORE foo\n";
+  private static final String STDOUT = NEWLINES.join(
+    "foo bar",
+    "baz qux",
+    "foo quo",
+    "IGNORE foo",
+    "");
+
+  private static final String STDERR = NEWLINES.join(
+    "ERROR: Did not expect baz.",
+    "ERROR: Did not expect quo.",
+    "IGNORE foo",
+    "");
 
   private final ThreadLocal<Process> proc = new ThreadLocal<>();
 

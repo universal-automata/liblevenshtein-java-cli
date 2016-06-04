@@ -1,12 +1,13 @@
 package com.github.liblevenshtein.util;
 
-import lombok.experimental.ExtensionMethod;
-
 import org.testng.annotations.Test;
+
+import lombok.experimental.ExtensionMethod;
 
 import static com.github.liblevenshtein.assertion.StringBuilderAssertions.assertThat;
 
-@ExtensionMethod({HighlightUtils.class})
+@ExtensionMethod(HighlightUtils.class)
+@SuppressWarnings("checkstyle:avoidescapedunicodecharacters")
 public class HighlightUtilsTest {
 
   @Test

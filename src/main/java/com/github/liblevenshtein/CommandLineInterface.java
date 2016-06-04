@@ -13,31 +13,115 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import com.google.common.base.Joiner;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import lombok.extern.slf4j.Slf4j;
 
-import com.github.dylon.liblevenshtein.collection.dawg.SortedDawg;
-import com.github.dylon.liblevenshtein.levenshtein.Algorithm;
-import com.github.dylon.liblevenshtein.levenshtein.ITransducer;
-import com.github.dylon.liblevenshtein.levenshtein.factory.TransducerBuilder;
-import com.github.dylon.liblevenshtein.serialization.BytecodeSerializer;
-import com.github.dylon.liblevenshtein.serialization.ProtobufSerializer;
-import com.github.dylon.liblevenshtein.serialization.PlainTextSerializer;
-import com.github.dylon.liblevenshtein.serialization.Serializer;
+import com.github.liblevenshtein.collection.dictionary.SortedDawg;
+import com.github.liblevenshtein.serialization.BytecodeSerializer;
+import com.github.liblevenshtein.serialization.PlainTextSerializer;
+import com.github.liblevenshtein.serialization.ProtobufSerializer;
+import com.github.liblevenshtein.serialization.Serializer;
+import com.github.liblevenshtein.transducer.Algorithm;
+import com.github.liblevenshtein.transducer.ITransducer;
+import com.github.liblevenshtein.transducer.factory.TransducerBuilder;
 
 /**
  * Command-line interface to liblevenshtein (Java).
  */
 @Slf4j
+@SuppressWarnings({"checkstyle:uncommentedmain", "checkstyle:classdataabstractioncoupling"})
 public class CommandLineInterface extends Action {
+
+  /**
+   * Argument may be a filesystem path or Java-compatible URI.
+   */
+  private static final String ARG_PATH_OR_URI = "PATH|URI";
+
+  /**
+   * Argument must be an {@link Algorithm}.
+   */
+  private static final String ARG_ALGORITHM = "ALGORITHM";
+
+  /**
+   * Argument must be an {@link Integer}.
+   */
+  private static final String ARG_INTEGER = "INTEGER";
+
+  /**
+   * Argument must be a list of space-delimited strings, with at least one
+   * value.
+   */
+  private static final String ARG_STRINGS = "STRING> <...";
+
+  /**
+   * Argument must be a filesystem path.
+   */
+  private static final String ARG_PATH = "PATH";
+
+  /**
+   * Argument must be a {@link SerializationFormat}.
+   */
+  private static final String ARG_FORMAT = "FORMAT";
+
+  /**
+   * Filesystem path or Java-compatible URI to a dictionary of terms.
+   */
+  private static final String FLAG_DICTIONARY = "dictionary";
+
+  /**
+   * Specifies that the dictionary is sorted lexicographically, in ascending
+   * order.
+   */
+  private static final String FLAG_IS_SORTED = "is-sorted";
+
+  /**
+   * Levenshtein algorithm to use.
+   */
+  private static final String FLAG_ALGORITHM = "algorithm";
+
+  /**
+   * Maximun, Levenshtein distance a spelling candidate may be from the query
+   * term.
+   */
+  private static final String FLAG_MAX_DISTANCE = "max-distance";
+
+  /**
+   * Include the Levenshtein distance with each spelling candidate.
+   */
+  private static final String FLAG_INCLUDE_DISTANCE = "include-distance";
+
+  /**
+   * Terms to query against the dictionary.
+   */
+  private static final String FLAG_QUERY = "query";
+
+  /**
+   * Path to save the serialized dictionary.
+   */
+  private static final String FLAG_SERIALIZE = "serialize";
+
+  /**
+   * Format of the source dictionary.
+   */
+  private static final String FLAG_SOURCE_FORMAT = "source-format";
+
+  /**
+   * Format of the serialized dictionary.
+   */
+  private static final String FLAG_TARGET_FORMAT = "target-format";
+
+  /**
+   * Colorize output.
+   */
+  private static final String FLAG_COLORIZE = "colorize";
 
   /**
    * Heuristic to distinguish between URIs and filesystem paths.
@@ -72,6 +156,14 @@ public class CommandLineInterface extends Action {
   private static final Joiner NEWLINES = Joiner.on("\n");
 
   /**
+   * Constructs a new command-line interface with the arguments.
+   * @param args Command-line arguments
+   */
+  public CommandLineInterface(final String[] args) {
+    super(args);
+  }
+
+  /**
    * Specifies the name of the application for the help text.
    * @return Name of the application for the help text.
    */
@@ -85,26 +177,27 @@ public class CommandLineInterface extends Action {
    * @return Header for the help documentation.
    */
   @Override
+  @SuppressWarnings("checkstyle:multiplestringliterals")
   protected String helpHeader() {
     return String.format("%s%n%n", NEWLINES.join(
       "",
       "Command-Line Interface to liblevenshtein (Java)",
       "",
-      "<FORMAT> specifies the serialization format of the dictionary,",
+      "<" + ARG_FORMAT + "> specifies the serialization format of the dictionary,",
       "and may be one of the following:",
-      "  1. PROTOBUF",
+      "  1. " + SerializationFormat.PROTOBUF,
       "     - (de)serialize the dictionary as a protobuf stream.",
       "     - This is the preferred format.",
       "     - See: https://developers.google.com/protocol-buffers/",
-      "  2. BYTECODE",
+      "  2. " + SerializationFormat.BYTECODE,
       "     - (de)serialize the dictionary as a Java, bytecode stream.",
-      "  3. PLAIN_TEXT",
+      "  3. " + SerializationFormat.PLAIN_TEXT,
       "     - (de)serialize the dictionary as a plain text file.",
       "     - Terms are delimited by newlines.",
       "",
-      "<ALGORITHM> specifies the Levenshtein algorithm to use for",
+      "<" + ARG_ALGORITHM + "> specifies the Levenshtein algorithm to use for",
       "querying-against the dictionary, and may be one of the following:",
-      "  1. STANDARD",
+      "  1. " + Algorithm.STANDARD,
       "     - Use the standard, Levenshtein distance which considers the",
       "     following elementary operations:",
       "       o Insertion",
@@ -112,7 +205,7 @@ public class CommandLineInterface extends Action {
       "       o Substitution",
       "     - An elementary operation is an operation that incurs a penalty of",
       "     one unit.",
-      "  2. TRANSPOSITION",
+      "  2. " + Algorithm.TRANSPOSITION,
       "     - Extend the standard, Levenshtein distance to include transpositions",
       "     as elementary operations.",
       "       o A transposition is a swapping of two, consecutive characters as",
@@ -122,7 +215,7 @@ public class CommandLineInterface extends Action {
       "         + An insertion and a deletion",
       "         + A deletion and an insertion",
       "         + Two substitutions",
-      "  3. MERGE_AND_SPLIT",
+      "  3. " + Algorithm.MERGE_AND_SPLIT,
       "     - Extend the standard, Levenshtein distance to include merges and",
       "     splits as elementary operations.",
       "       o A merge takes two characters and merges them into a single one.",
@@ -155,22 +248,15 @@ public class CommandLineInterface extends Action {
   }
 
   /**
-   * Constructs a new command-line interface with the arguments.
-   * @param args Command-line arguments
-   */
-  public CommandLineInterface(final String[] args) {
-    super(args);
-  }
-
-  /**
    * Stream to the dictionary to query against.  This may be any valid,
    * filesystem path or Java-compatible URI (such as a remote dictionary, Jar
    * resource, etc.).
    * @return Stream to the dictionary to query against.
    * @throws IOException If the dictionary stream cannot be read.
    */
+  @SuppressWarnings("checkstyle:illegalcatch")
   private InputStream dictionary() throws IOException {
-    final String path = cli.getOptionValue("dictionary");
+    final String path = cli.getOptionValue(FLAG_DICTIONARY);
 
     try {
       if (null == path && 0 != System.in.available()) {
@@ -204,7 +290,7 @@ public class CommandLineInterface extends Action {
    * @return Whether the dictionary is sorted.
    */
   private boolean isSorted() {
-    return cli.hasOption("is-sorted");
+    return cli.hasOption(FLAG_IS_SORTED);
   }
 
   /**
@@ -212,7 +298,7 @@ public class CommandLineInterface extends Action {
    * @return Levenshtein algorithm to use while querying the dictionary.
    */
   private Algorithm algorithm() {
-    final String algorithmName = cli.getOptionValue("algorithm");
+    final String algorithmName = cli.getOptionValue(FLAG_ALGORITHM);
 
     if (null == algorithmName) {
       return DEFAULT_ALGORITHM;
@@ -236,7 +322,7 @@ public class CommandLineInterface extends Action {
    * @return Maximum, Levenshtein distance of spelling candidates.
    */
   private int maxDistance() {
-    final String maxDistance = cli.getOptionValue("max-distance");
+    final String maxDistance = cli.getOptionValue(FLAG_MAX_DISTANCE);
 
     if (null == maxDistance) {
       return DEFAULT_MAX_DISTANCE;
@@ -259,7 +345,7 @@ public class CommandLineInterface extends Action {
    * @return Whether to include the Levenshtein distance.
    */
   private boolean includeDistance() {
-    return cli.hasOption("include-distance");
+    return cli.hasOption(FLAG_INCLUDE_DISTANCE);
   }
 
   /**
@@ -267,8 +353,8 @@ public class CommandLineInterface extends Action {
    * @return Terms to query against the dictionary.
    */
   private List<String> queryTerms() {
-    if (cli.hasOption("query")) {
-      return Arrays.asList(cli.getOptionValues("query"));
+    if (cli.hasOption(FLAG_QUERY)) {
+      return Arrays.asList(cli.getOptionValues(FLAG_QUERY));
     }
     return Arrays.asList();
   }
@@ -279,7 +365,7 @@ public class CommandLineInterface extends Action {
    * @return Where to serialize the dictionary.
    */
   private Path serializationPath() {
-    final String serializationPath = cli.getOptionValue("serialize");
+    final String serializationPath = cli.getOptionValue(FLAG_SERIALIZE);
     if (null == serializationPath) {
       return null;
     }
@@ -292,7 +378,7 @@ public class CommandLineInterface extends Action {
    * @return Target, serialization format for dictionaries.
    */
   private SerializationFormat sourceFormat() {
-    final String sourceFormat = cli.getOptionValue("source-format");
+    final String sourceFormat = cli.getOptionValue(FLAG_SOURCE_FORMAT);
     if (null == sourceFormat) {
       return null;
     }
@@ -305,7 +391,7 @@ public class CommandLineInterface extends Action {
    * @return Target, serialization format for dictionaries.
    */
   private SerializationFormat targetFormat() {
-    final String targetFormat = cli.getOptionValue("target-format");
+    final String targetFormat = cli.getOptionValue(FLAG_TARGET_FORMAT);
     if (null == targetFormat) {
       return DEFAULT_FORMAT;
     }
@@ -317,7 +403,7 @@ public class CommandLineInterface extends Action {
    * @return Whether to colorize the output.
    */
   private boolean colorize() {
-    return cli.hasOption("colorize");
+    return cli.hasOption(FLAG_COLORIZE);
   }
 
   /**
@@ -328,71 +414,71 @@ public class CommandLineInterface extends Action {
     final Options options = super.options();
     options.addOption(
       Option.builder("d")
-        .longOpt("dictionary")
-        .argName("PATH|URI")
+        .longOpt(FLAG_DICTIONARY)
+        .argName(ARG_PATH_OR_URI)
         .desc("Filesystem path or Java-compatible URI to a dictionary of terms")
         .hasArg()
         .build());
     options.addOption(
       Option.builder("s")
-        .longOpt("is-sorted")
+        .longOpt(FLAG_IS_SORTED)
         .desc("Specifies that the dictionary is sorted lexicographically, in "
           + "ascending order (Default: false)")
         .build());
     options.addOption(
       Option.builder("a")
-        .longOpt("algorithm")
-        .argName("ALGORITHM")
+        .longOpt(FLAG_ALGORITHM)
+        .argName(ARG_ALGORITHM)
         .desc(String.format("Levenshtein algorithm to use (Default: %s)",
           DEFAULT_ALGORITHM))
         .hasArg()
         .build());
     options.addOption(
       Option.builder("m")
-        .longOpt("max-distance")
-        .argName("INTEGER")
+        .longOpt(FLAG_MAX_DISTANCE)
+        .argName(ARG_INTEGER)
         .desc(String.format("Maximun, Levenshtein distance a spelling candidate"
           + "may be from the query term (Default: %d)", DEFAULT_MAX_DISTANCE))
         .hasArg()
         .build());
     options.addOption(
       Option.builder("i")
-        .longOpt("include-distance")
+        .longOpt(FLAG_INCLUDE_DISTANCE)
         .desc("Include the Levenshtein distance with each spelling candidate "
           + "(Default: false)")
         .build());
     options.addOption(
       Option.builder("q")
-        .longOpt("query")
-        .argName("STRING> <...")
+        .longOpt(FLAG_QUERY)
+        .argName(ARG_STRINGS)
         .desc("Terms to query against the dictionary.  You may specify multiple terms.")
         .hasArgs()
         .build());
     options.addOption(
       Option.builder()
-        .longOpt("serialize")
-        .argName("PATH")
+        .longOpt(FLAG_SERIALIZE)
+        .argName(ARG_PATH)
         .desc("Path to save the serialized dictionary")
         .hasArg()
         .build());
     options.addOption(
       Option.builder()
-        .longOpt("source-format")
-        .argName("FORMAT")
+        .longOpt(FLAG_SOURCE_FORMAT)
+        .argName(ARG_FORMAT)
         .desc("Format of the source dictionary (Default: adaptively-try each format until one works)")
         .hasArg()
         .build());
     options.addOption(
       Option.builder()
-        .longOpt("target-format")
-        .argName("FORMAT")
+        .longOpt(FLAG_TARGET_FORMAT)
+        .argName(ARG_FORMAT)
         .desc(String.format("Format of the serialized dictionary (Default: %s)",
           DEFAULT_FORMAT))
         .hasArg()
         .build());
     options.addOption(
       Option.builder()
-        .longOpt("colorize")
+        .longOpt(FLAG_COLORIZE)
         .desc("Colorize output")
         .build());
     return options;
@@ -415,7 +501,7 @@ public class CommandLineInterface extends Action {
    * @param format Serialization format of the dictionary stream.
    * @return Dictionary desized using the specified format.
    * @throws Exception When the dictionary cannot be deserialized as the given
-   * format.
+   *   format.
    */
   private SortedDawg deserialize(final SerializationFormat format) throws Exception {
     switch (format) {
@@ -466,6 +552,7 @@ public class CommandLineInterface extends Action {
    * @return Dictionary from the first deserializer that succeeds.
    * @throws Exception If the dictionary cannot be deserialized.
    */
+  @SuppressWarnings("checkstyle:illegalcatch")
   private SortedDawg deserializeAdaptive() throws Exception {
     for (final SerializationFormat format : SerializationFormat.values()) {
       try {
@@ -491,6 +578,7 @@ public class CommandLineInterface extends Action {
    * @throws Exception When the dictionary cannot be read from the stream.
    */
   @SuppressFBWarnings("REC_CATCH_EXCEPTION")
+  @SuppressWarnings("checkstyle:illegalcatch")
   private SortedDawg buildDictionary() throws Exception {
     if (null == sourceFormat()) {
       return deserializeAdaptive();
@@ -649,6 +737,7 @@ public class CommandLineInterface extends Action {
    * query terms, according to the parameters specified on the command-line.
    * @param args Arguments that specify how to query the dictionary.
    */
+  @SuppressWarnings("checkstyle:illegalcatch")
   public static void main(final String... args) {
     try {
       final CommandLineInterface app = new CommandLineInterface(args);

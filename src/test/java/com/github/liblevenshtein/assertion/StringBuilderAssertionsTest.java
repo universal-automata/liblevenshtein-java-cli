@@ -6,6 +6,16 @@ import static com.github.liblevenshtein.assertion.StringBuilderAssertions.assert
 
 public class StringBuilderAssertionsTest {
 
+  private static final String FOO = "foo";
+
+  private static final String BAR = "bar";
+
+  private static final String BAZ = "baz";
+
+  private static final String QUX = "qux";
+
+  private static final String QUO = "quo";
+
   @Test
   public void testIsEmptyWhenEmpty() {
     assertThat(new StringBuilder()).isEmpty();
@@ -13,7 +23,7 @@ public class StringBuilderAssertionsTest {
 
   @Test(expectedExceptions = AssertionError.class)
   public void testIsEmptyWhenNotEmpty() {
-    assertThat(new StringBuilder("foo")).isEmpty();
+    assertThat(new StringBuilder(FOO)).isEmpty();
   }
 
   @Test(expectedExceptions = AssertionError.class)
@@ -23,16 +33,16 @@ public class StringBuilderAssertionsTest {
 
   @Test
   public void testIsEqualToWhenEquals() {
-    assertThat(new StringBuilder("bar")).isEqualTo("bar");
+    assertThat(new StringBuilder(BAR)).isEqualTo(BAR);
   }
 
   @Test(expectedExceptions = AssertionError.class)
   public void testIsEqualToWhenNotEquals() {
-    assertThat(new StringBuilder("baz")).isEqualTo("qux");
+    assertThat(new StringBuilder(BAZ)).isEqualTo(QUX);
   }
 
   @Test(expectedExceptions = AssertionError.class)
   public void testIsEqualToWhenNull() {
-    assertThat(null).isEqualTo("quo");
+    assertThat(null).isEqualTo(QUO);
   }
 }

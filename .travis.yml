@@ -1,8 +1,29 @@
 language: java
 jdk:
   - oraclejdk8
+os:
+  - linux
+  #- osx # jdk section not supported on OS X
+env:
+  global:
+    # VERSIONEYE_API_KEY (https://docs.travis-ci.com/user/encryption-keys/)
+    - secure: "PmoYZFRSXqRirNcOm+NSBzfgAntUtJ/1OiDz7nTJBOpZ1mS8Oay6wIO43J8DJ3fAhGQtNb8453jpecPpLnu+IpVGv4UOnAVgcxHodgl9WwggLWTCwxwWp+LhRXnxkWeIyOoIE2S44vR0w89PK+kjJMg/nUaKfVQ07Hz8uXgUOtU="
+matrix:
+  # A build will finish as soon as a job has failed, rather than running the
+  # remaining jobs and accumulating failures.
+  fast_finish: true
+before_install:
+  - npm install csslint
+  - git clone https://github.com/dylon/jslint-utils.git "$HOME/jslint-utils"
 after_success:
+  - ./scripts/csslint --ignore=overqualified-elements,box-sizing src/checkstyle/css/checkstyle.css
+  - ./scripts/jslint src/checkstyle/js/checkstyle.js
   - ./gradlew check
+  - ./gradlew jacocoTestReport
+  - ./gradlew coveralls
+  - ./gradlew versionEyeSecurityCheck
+  - ./gradlew versionEyeLicenseCheck
+  - ./gradlew versionEyeUpdate
 after_failure:
   - ./gradlew clean check --debug
 notifications:

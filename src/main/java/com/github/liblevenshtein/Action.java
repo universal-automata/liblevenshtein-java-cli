@@ -22,11 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class Action implements Runnable {
 
   /**
-   * Joins elements with commas.
-   */
-  private static final Joiner COMMAS = Joiner.on(", ");
-
-  /**
    * Process exit code for success.
    */
   public static final int EXIT_SUCCESS = 0;
@@ -40,6 +35,11 @@ public abstract class Action implements Runnable {
    * Process exit code for an unhandled exception.
    */
   public static final int EXIT_UNHANDLED_ERROR = 2;
+
+  /**
+   * Joins elements with commas.
+   */
+  private static final Joiner COMMAS = Joiner.on(", ");
 
   /**
    * Command-line parameters of this action.
@@ -82,6 +82,7 @@ public abstract class Action implements Runnable {
    * {@inheritDoc}
    */
   @Override
+  @SuppressWarnings("checkstyle:illegalcatch")
   public void run() {
     try {
       log.info("Executing task [{}]", name());
@@ -114,8 +115,7 @@ public abstract class Action implements Runnable {
         }
       }
       final DefaultParser parser = new DefaultParser();
-      final CommandLine cli = parser.parse(options(), args);
-      return cli;
+      return parser.parse(options(), args);
     }
     catch (final AlreadySelectedException exception) {
       final String message =

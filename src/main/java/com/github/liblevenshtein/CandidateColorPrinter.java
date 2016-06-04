@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import lombok.experimental.ExtensionMethod;
 
-import com.github.dylon.liblevenshtein.levenshtein.Candidate;
+import com.github.liblevenshtein.transducer.Candidate;
 
 import com.github.liblevenshtein.util.HighlightUtils;
 
@@ -12,7 +12,7 @@ import com.github.liblevenshtein.util.HighlightUtils;
  * Prints the distance between a query term and spelling candidate, with
  * syntax highlighting.
  */
-@ExtensionMethod({HighlightUtils.class})
+@ExtensionMethod(HighlightUtils.class)
 public class CandidateColorPrinter extends AbstractPrinter {
 
   /**

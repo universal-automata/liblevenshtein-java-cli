@@ -23,7 +23,13 @@
 !/gradlew.bat
 !/gradlew.bat
 !/javadoc.options
+!/scripts/csslint
+!/scripts/functions
+!/scripts/jslint
 !/settings.gradle
+!/src/checkstyle/css/**/*.css
+!/src/checkstyle/js/**/*.js
+!/src/checkstyle/xslt/**/*.xsl
 !/src/integ/java/**/*.java
 !/src/integ/resources/**/*.bytecode.bytes
 !/src/integ/resources/**/*.protobuf.bytes

@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+
+set -ev
+
+GRADLEW="$(dirname "$0")/../gradlew"
+CHANGELOG="$(dirname "$0")/../CHANGELOG.md"
+
+# Ensure the file paths are fully-qualified
+if [[ ! "$(dirname "$0")" =~ ^/.*$ ]]; then
+  GRADLEW="$PWD/$GRADLEW"
+  CHANGELOG="$PWD/$CHANGELOG"
+fi
+
+function assert-changes-committed() {
+  echo "Checking for uncommitted changes ..."
+  if [ -n "$(git status --porcelain)" ]; then
+    fail "You must commit all your changes."
+  fi
+}
+
+function project-version() {
+  if [ -z "$PROJECT_VERSION" ]; then
+    pushd "$(dirname "$GRADLEW")" 1>/dev/null
+    PROJECT_VERSION="$("$GRADLEW" printVersion --quiet)"
+    popd 1>/dev/null
+  fi
+  echo "${PROJECT_VERSION}"
+}
+
+function print-project-version() {
+  echo "Project version [$(project-version)]"
+}
+
+function latest-version() {
+  if [ -z "$LATEST_VERSION" ]; then
+    pushd "$(dirname "$GRADLEW")" 1>/dev/null
+    LATEST_VERSION="$("$GRADLEW" printLatestVersion --quiet)"
+    popd 1>/dev/null
+  fi
+  echo "${LATEST_VERSION}"
+}
+
+function project-branch() {
+  if [ -z "$PROJECT_BRANCH" ]; then
+    pushd "$(dirname "$GRADLEW")" 1>/dev/null
+    PROJECT_BRANCH="$("$GRADLEW" printGitBranch --quiet)"
+    popd 1>/dev/null
+  fi
+  echo "${PROJECT_BRANCH}"
+}
+
+function assert-release-version() {
+  local VERSION="$1"
+  if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    fail "Expected a release version (version =~ ^[0-9]+\.[0-9]+\.[0-9]+$), not the development version [${VERSION}]"
+  fi
+}
+
+function assert-versions-equal() {
+  local PROPERTY_NAME="$1"
+  local ACTUAL_VERSION="$2"
+  local EXPECTED_VERSION="$3"
+  if [[ "${LHS_VERSION}" != "${RHS_VERSION}" ]]; then
+    fail "Expected [${PROPERTY_NAME}] to be [${EXPECTED_VERSION}], but was [${ACTUAL_VERSION}]"
+  fi
+}
+
+function release-date() {
+  RELEASE_DATE="${RELEASE_DATE:-"$(date +'%A, %B %e, %Y' | sed -e 's/ \+/ /g')"}"
+  echo "${RELEASE_DATE}"
+}
+
+function assert-release-notes() {
+  if ! grep "^## \[$(project-version)] - $(release-date)\$" "${CHANGELOG}"; then
+    fail "Either version [$(project-version)] has not been described in the CHANGELOG [${CHANGELOG}], or the release date is not today [$(release-date)]."
+  fi
+}
+
+function clean-check() {
+  echo "Doing a clean+check to make sure code quality is up-to-par ..."
+  "$GRADLEW" clean check
+}
+
+function gendoc-message() {
+  GENDOC_MESSAGE="${GENDOC_MESSAGE:-"Automatically-generated documentation for version $(project-version)"}"
+  echo "${GENDOC_MESSAGE}"
+}
+
+function update-readme() {
+  echo "Generating readme ..."
+  "$GRADLEW" readme
+  git add -A
+  git commit -m "$(gendoc-message)"
+  git push -u origin master
+}
+
+function update-wikidoc-javadoc() {
+  echo "Generating the documentation ..."
+  "$GRADLEW" wikidoc javadoc
+
+  pushd gh-pages
+  git add -A
+  git commit -m "$(gendoc-message)"
+  git push -u origin gh-pages
+  popd
+}
+
+function update-branch() {
+  local BRANCH="$1"
+  echo "Merging changes into ${BRANCH}"
+  git checkout -B "${BRANCH}"
+  git merge master
+  git push -u origin "${BRANCH}"
+  git checkout master
+}
+
+function tag-release() {
+  echo "Tagging new release $(project-version) ..."
+  if git tag --list | grep "^$(project-version)$"; then
+    echo "Local tag $(project-version) exists, overwriting it ..."
+    git tag -d "$(project-version)"
+  fi
+  if git ls-remote --tags | grep "\brefs/tags/$(project-version)$"; then
+    echo "Remote tag $(project-version) exists, overwriting it ..."
+    git push origin :tags/$(project-version)
+  fi
+  git tag "$(project-version)"
+  git push --tags
+}
+
+function update-java-submodule() {
+  echo "Updating submodules in universal-automata/liblevenshtein ..."
+  local TMP_DIR="$(mktemp -d)"
+  pushd "${TMP_DIR}"
+  git clone 'git@github.com:universal-automata/liblevenshtein.git'
+  cd liblevenshtein
+  git submodule init
+  git submodule update
+  pushd java
+  git fetch
+  git checkout release
+  popd
+  git add -A
+  git commit -m "Updating the java, submodule to version $(project-version)"
+  git push origin master
+  popd
+  rm -rf "${TMP_DIR}"
+}
+
+function check-update-branch() {
+  local BRANCH="$1"
+  assert-changes-committed
+  clean-check
+  update-branch "${BRANCH}"
+  succeed
+}
+
+function fail() {
+  local MESSAGE="${1:-'An error occurred.'}"
+  echo "${MESSAGE}" 1>&2
+  exit 1
+}
+
+function succeed() {
+  local MESSAGE="${1:-'Success!'}"
+  echo "${MESSAGE}"
+  exit 0
+}
+
+# vim: set ft=sh ts=2 sw=2 et sta:

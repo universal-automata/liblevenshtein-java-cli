@@ -8,7 +8,7 @@ import com.github.liblevenshtein.util.HighlightUtils;
  * Prints a user-friendly header, that specifies which term is being queried,
  * in color.
  */
-@ExtensionMethod({HighlightUtils.class})
+@ExtensionMethod(HighlightUtils.class)
 public class HeaderColorPrinter extends AbstractPrinter {
 
   /**

@@ -9,7 +9,7 @@ import com.github.liblevenshtein.util.HighlightUtils;
 /**
  * Prints a query term and spelling candidate, with syntax highlighting.
  */
-@ExtensionMethod({HighlightUtils.class})
+@ExtensionMethod(HighlightUtils.class)
 public class StringColorPrinter extends AbstractPrinter {
 
   /**

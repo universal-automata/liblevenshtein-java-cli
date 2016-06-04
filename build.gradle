@@ -1,16 +1,39 @@
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath 'org.standardout:gradle-versioneye-plugin:latest.release'
+    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:latest.release'
+  }
+  configurations {
+    classpath {
+      resolutionStrategy {
+        componentSelection {
+          all { ComponentSelection selection ->
+            def candidate = selection.candidate
+            if (candidate.version ==~ /(?i)^.*(?:(?:alpha|beta|gamma|rc|snapshot).*|\bm\d+)$/) {
+              selection.reject("${candidate.group}:${candidate.name}:${candidate.version} is not a production release.")
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 plugins {
-  // Supported Plugins
   id 'application'
   id 'checkstyle'
   id 'findbugs'
   id 'jacoco'
   id 'java'
   id 'maven-publish'
-
-  // Third Party Plugins
-  id 'com.github.kt3k.coveralls' version '2.6.3'
-  id 'org.standardout.versioneye' version '1.2.0'
 }
+
+apply plugin: 'org.standardout.versioneye'
+apply plugin: 'com.github.kt3k.coveralls'
 
 repositories {
   mavenCentral()
@@ -28,14 +51,41 @@ sourceSets {
   }
 }
 
+def resolutionStrategy = {
+  resolutionStrategy {
+    componentSelection {
+      all { ComponentSelection selection ->
+        def candidate = selection.candidate
+        if (candidate.group == 'com.google.protobuf') {
+          if (candidate.version ==~ /(?i)^.*(?:(?:alpha|snapshot).*|\bm\d+)$/) {
+            selection.reject("${candidate.group}:${candidate.name}:${candidate.version} is not a stable-enough release.")
+          }
+        }
+        else if (candidate.version ==~ /(?i)^.*(?:(?:alpha|beta|gamma|rc|snapshot).*|\bm\d+)$/) {
+          selection.reject("${candidate.group}:${candidate.name}:${candidate.version} is not a production release.")
+        }
+      }
+    }
+  }
+}
+
 configurations {
+  compile resolutionStrategy
+  runtime resolutionStrategy
+  testCompile resolutionStrategy
+  testRuntime resolutionStrategy
+  jacocoAgent resolutionStrategy
+  jacocoAnt resolutionStrategy
+  checkstyle resolutionStrategy
+  // Integration tests
+  integ resolutionStrategy
   integCompile.extendsFrom testCompile
   integRuntime.extendsFrom testRuntime
 }
 
 group = 'com.github.dylon'
 archivesBaseName = name
-version = '2.2.3' // http://semver.org/
+version = '3.0.0' // http://semver.org/
 
 description = 'Command-Line Interface to liblevenshtein (Java)'
 
@@ -50,41 +100,41 @@ ext {
 }
 
 dependencies {
-  compile "com.github.universal-automata:liblevenshtein:2.2.3"
-  compile 'com.google.code.findbugs:annotations:3.0.1'
-  compile 'com.google.guava:guava:19.0'
-  compile 'com.google.protobuf:protobuf-java-util:3.0.0-beta-2'
-  compile 'com.google.protobuf:protobuf-java:3.0.0-beta-2'
-  compile 'commons-cli:commons-cli:1.3.1'
-  compile 'org.apache.commons:commons-lang3:3.4'
-  compile 'org.projectlombok:lombok:1.16.8'
-  compile 'org.slf4j:slf4j-api:1.7.21'
+  compile "com.github.universal-automata:liblevenshtein:$version"
+  compile 'com.google.code.findbugs:annotations:latest.release'
+  compile 'com.google.guava:guava:latest.release'
+  compile 'com.google.protobuf:protobuf-java-util:latest.release'
+  compile 'com.google.protobuf:protobuf-java:latest.release'
+  compile 'commons-cli:commons-cli:latest.release'
+  compile 'org.apache.commons:commons-lang3:latest.release'
+  compile 'org.projectlombok:lombok:latest.release'
+  compile 'org.slf4j:slf4j-api:latest.release'
 
-  runtime 'ch.qos.logback:logback-classic:1.1.7'
-  runtime 'org.codehaus.groovy:groovy-all:2.4.6'
-  runtime 'org.slf4j:jcl-over-slf4j:1.7.21'
-  runtime 'org.slf4j:jul-to-slf4j:1.7.21'
-  runtime 'org.slf4j:log4j-over-slf4j:1.7.21'
-  runtime 'org.slf4j:osgi-over-slf4j:1.7.21'
+  runtime 'ch.qos.logback:logback-classic:latest.release'
+  runtime 'org.codehaus.groovy:groovy-all:latest.release'
+  runtime 'org.slf4j:jcl-over-slf4j:latest.release'
+  runtime 'org.slf4j:jul-to-slf4j:latest.release'
+  runtime 'org.slf4j:log4j-over-slf4j:latest.release'
+  runtime 'org.slf4j:osgi-over-slf4j:latest.release'
 
-  testCompile 'org.assertj:assertj-core:3.4.1'
-  testCompile 'org.mockito:mockito-all:1.10.19'
-  testCompile 'org.projectlombok:lombok:1.16.8'
-  testCompile 'org.testng:testng:6.9.11'
+  testCompile 'org.assertj:assertj-core:latest.release'
+  testCompile 'org.mockito:mockito-all:latest.release'
+  testCompile 'org.projectlombok:lombok:latest.release'
+  testCompile 'org.testng:testng:latest.release'
 
-  testRuntime 'ch.qos.logback:logback-classic:1.1.7'
-  testRuntime 'org.codehaus.groovy:groovy-all:2.4.6'
-  testRuntime 'org.slf4j:jcl-over-slf4j:1.7.21'
-  testRuntime 'org.slf4j:jul-to-slf4j:1.7.21'
-  testRuntime 'org.slf4j:log4j-over-slf4j:1.7.21'
-  testRuntime 'org.slf4j:osgi-over-slf4j:1.7.21'
+  testRuntime 'ch.qos.logback:logback-classic:latest.release'
+  testRuntime 'org.codehaus.groovy:groovy-all:latest.release'
+  testRuntime 'org.slf4j:jcl-over-slf4j:latest.release'
+  testRuntime 'org.slf4j:jul-to-slf4j:latest.release'
+  testRuntime 'org.slf4j:log4j-over-slf4j:latest.release'
+  testRuntime 'org.slf4j:osgi-over-slf4j:latest.release'
 
   // JaCoCo (Plugin)
-  jacocoAgent 'org.jacoco:org.jacoco.agent:0.7.6.201602180812'
-  jacocoAnt 'org.jacoco:org.jacoco.ant:0.7.6.201602180812'
+  jacocoAgent 'org.jacoco:org.jacoco.agent:latest.release'
+  jacocoAnt 'org.jacoco:org.jacoco.ant:latest.release'
 
   // Checkstyle (Plugin)
-  checkstyle 'com.puppycrawl.tools:checkstyle:6.17'
+  checkstyle 'com.puppycrawl.tools:checkstyle:latest.release'
 }
 
 jacocoTestReport {
@@ -169,41 +219,35 @@ tasks.withType(Test) {
   reports.html.destination = file("${reporting.baseDir}/${name}")
 }
 
-//tasks.javadoc {
-  //dependsOn delombok
-  //source = new FileNameFinder().getFileNames("${buildDir}", '**/*.java')
-  //destinationDir = file("${projectDir}/gh-pages/docs/javadoc/${version}")
-  //if (destinationDir.exists() && !destinationDir.deleteDir()) {
-    //throw new IOException("Failed to delete javadoc dir [${destinationDir}]")
-  //}
-  //destinationDir.mkdirs()
-  //options.optionFiles << file('javadoc.options')
-//}
-
-task checkstyleMainHtml << {
-  ant.xslt(
-    in: checkstyleMain.reports.xml.destination,
-    style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
-    out: new File(checkstyleMain.reports.xml.destination.parent, 'main.html'))
+tasks.withType(Checkstyle) {
+  def jsSrc = file("${projectDir}/src/checkstyle/js")
+  def jsDest = file("${buildDir}/reports/checkstyle/js")
+  def cssSrc = file("${projectDir}/src/checkstyle/css")
+  def cssDest = file("${buildDir}/reports/checkstyle/css")
+  doFirst {
+    if (!jsDest.exists() && !jsDest.mkdirs()) {
+      throw new IOException("Cannot create JavaScript directory [${jsDest}]")
+    }
+    if (!cssDest.exists() && !cssDest.mkdirs()) {
+      throw new IOException("Cannot create CSS directory [${cssDest}]")
+    }
+    copy {
+      from jsSrc
+      into jsDest
+    }
+    copy {
+      from cssSrc
+      into cssDest
+    }
+  }
+  reports {
+    xml.enabled true
+    html {
+      enabled true
+      stylesheet resources.text.fromFile('src/checkstyle/xslt/checkstyle.xsl')
+    }
+  }
 }
-
-task checkstyleTestHtml << {
-  ant.xslt(
-    in: checkstyleTest.reports.xml.destination,
-    style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
-    out: new File(checkstyleTest.reports.xml.destination.parent, 'test.html'))
-}
-
-task checkstyleIntegHtml << {
-  ant.xslt(
-    in: checkstyleInteg.reports.xml.destination,
-    style: file("${projectDir}/config/checkstyle/checkstyle.xsl"),
-    out: new File(checkstyleInteg.reports.xml.destination.parent, 'integ.html'))
-}
-
-checkstyleMain.finalizedBy checkstyleMainHtml
-checkstyleTest.finalizedBy checkstyleTestHtml
-checkstyleInteg.finalizedBy checkstyleIntegHtml
 
 check.dependsOn integ
 integ.mustRunAfter test

@@ -3,6 +3,7 @@ package com.github.liblevenshtein.util;
 /**
  * Utilities for syntax-highlighting command-line messages.
  */
+@SuppressWarnings("checkstyle:avoidescapedunicodecharacters")
 public class HighlightUtils {
 
   /** Unformatted text. */

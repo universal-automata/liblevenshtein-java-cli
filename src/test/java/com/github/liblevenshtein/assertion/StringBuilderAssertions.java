@@ -1,10 +1,10 @@
 package com.github.liblevenshtein.assertion;
 
-import lombok.NonNull;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import org.assertj.core.api.AbstractAssert;
+
+import lombok.NonNull;
 
 /**
  * AssertJ-style assertions for {@link StringBuilder}.
@@ -33,7 +33,7 @@ public class StringBuilderAssertions
    * Asserts that the {@link #actual} {@link StringBuilder} is empty.
    * @return This {@link StringBuilderAssertions} for fluency.
    * @throws AssertionError When the {@link #actual} {@link StringBuilder} is
-   * null or is not empty.
+   *   null or is not empty.
    */
   public StringBuilderAssertions isEmpty() {
     isNotNull();
@@ -53,7 +53,7 @@ public class StringBuilderAssertions
    * {@link StringBuilder}'s value.
    * @return This {@link StringBuilderAssertions} for fluency.
    * @throws AssertionError When the {@link #actual} {@link StringBuilder} is
-   * null or does not contain the specific text.
+   *   null or does not contain the specific text.
    */
   public StringBuilderAssertions isEqualTo(@NonNull final String text) {
     isNotNull();
